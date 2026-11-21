@@ -19,6 +19,13 @@ export class LocalidadesController {
     return this.service.findByEscenario(escenarioId);
   }
 
+  @Get('localidades/escenario/:escenarioId')
+  findByEscenarioAlias(
+    @Param('escenarioId', ParseIntPipe) escenarioId: number,
+  ): Promise<LocalidadResponseDto[]> {
+    return this.service.findByEscenario(escenarioId);
+  }
+
   @Get('localidades/:id')
   findOne(@Param('id', ParseIntPipe) id: number): Promise<LocalidadResponseDto> {
     return this.service.findOne(id);

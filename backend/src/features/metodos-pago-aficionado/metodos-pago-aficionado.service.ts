@@ -49,4 +49,11 @@ export class MetodosPagoAficionadoService {
     await this.repo.remove(found);
     return { message: 'Método de pago eliminado' };
   }
+
+  async removeById(id: number): Promise<{ message: string }> {
+    const found = await this.repo.findOne({ where: { id } });
+    if (!found) throw new NotFoundException(`Método de pago ${id} no encontrado`);
+    await this.repo.remove(found);
+    return { message: 'Método de pago eliminado' };
+  }
 }

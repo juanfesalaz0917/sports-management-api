@@ -40,10 +40,25 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "x-bypass-security", "value": "true" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-bypass-security",
+                "value": "true"
+              }
             ],
-            "url": { "raw": "{{baseUrl}}/stubs/seed", "host": ["{{baseUrl}}"], "path": ["stubs", "seed"] }
+            "url": {
+              "raw": "{{baseUrl}}/stubs/seed",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "stubs",
+                "seed"
+              ]
+            }
           },
           "event": [
             {
@@ -68,15 +83,32 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "x-bypass-security", "value": "true" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-bypass-security",
+                "value": "true"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"marca\": \"Adidas\",\n  \"referencia\": \"Al Rihla 2026\"\n}"
             },
-            "url": { "raw": "{{baseUrl}}/pelotas", "host": ["{{baseUrl}}"], "path": ["pelotas"] }
+            "url": {
+              "raw": "{{baseUrl}}/pelotas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pelotas"
+              ]
+            }
           },
           "event": [
             {
@@ -96,10 +128,24 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "x-bypass-security", "value": "true" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-bypass-security",
+                "value": "true"
+              }
             ],
-            "url": { "raw": "{{baseUrl}}/pelotas", "host": ["{{baseUrl}}"], "path": ["pelotas"] }
+            "url": {
+              "raw": "{{baseUrl}}/pelotas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pelotas"
+              ]
+            }
           },
           "event": [
             {
@@ -124,15 +170,32 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "x-bypass-security", "value": "true" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-bypass-security",
+                "value": "true"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"nombre\": \"Delantero Centro\",\n  \"descripcion\": \"Atacante referente de área\"\n}"
             },
-            "url": { "raw": "{{baseUrl}}/posiciones-espaciales", "host": ["{{baseUrl}}"], "path": ["posiciones-espaciales"] }
+            "url": {
+              "raw": "{{baseUrl}}/posiciones-espaciales",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "posiciones-espaciales"
+              ]
+            }
           },
           "event": [
             {
@@ -152,10 +215,24 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "x-bypass-security", "value": "true" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-bypass-security",
+                "value": "true"
+              }
             ],
-            "url": { "raw": "{{baseUrl}}/posiciones-espaciales", "host": ["{{baseUrl}}"], "path": ["posiciones-espaciales"] }
+            "url": {
+              "raw": "{{baseUrl}}/posiciones-espaciales",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "posiciones-espaciales"
+              ]
+            }
           },
           "event": [
             {
@@ -165,6 +242,91 @@
                   "pm.test('Status code es 200', function () { pm.response.to.have.status(200); });"
                 ],
                 "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "HU-GC-09: Registrar Posiciones en Lote (Simulador/Pizarra)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-bypass-security",
+                "value": "true"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"posiciones\": [\n    {\n      \"esPelota\": true,\n      \"x\": 0.55,\n      \"y\": 0.52\n    },\n    {\n      \"jugadorId\": 1,\n      \"x\": 0.18,\n      \"y\": 0.49\n    },\n    {\n      \"jugadorId\": 2,\n      \"x\": 0.48,\n      \"y\": 0.4\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/partidos/1/posiciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "partidos",
+                "1",
+                "posiciones"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code es 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Retorna lista de posiciones registradas\", function () { var j = pm.response.json(); pm.expect(Array.isArray(j)).to.be.true; });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "HU-GC-09: Consultar Ultimas Posiciones en Vivo",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-bypass-security",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/partidos/1/posiciones/ultimas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "partidos",
+                "1",
+                "posiciones",
+                "ultimas"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code es 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Retorna ultimas posiciones de jugadores y pelota\", function () { var j = pm.response.json(); pm.expect(Array.isArray(j)).to.be.true; });"
+                ]
               }
             }
           ]
@@ -179,15 +341,32 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "x-bypass-security", "value": "true" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-bypass-security",
+                "value": "true"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"fechaHora\": \"2026-12-01T20:00:00Z\",\n  \"torneoId\": 1,\n  \"faseId\": 1,\n  \"escenarioId\": 1,\n  \"equipoLocalId\": 1,\n  \"equipoVisitanteId\": 2,\n  \"pelotaId\": 1,\n  \"estado\": \"PROGRAMADO\"\n}"
             },
-            "url": { "raw": "{{baseUrl}}/partidos", "host": ["{{baseUrl}}"], "path": ["partidos"] }
+            "url": {
+              "raw": "{{baseUrl}}/partidos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "partidos"
+              ]
+            }
           },
           "event": [
             {
@@ -207,15 +386,32 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "x-bypass-security", "value": "true" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-bypass-security",
+                "value": "true"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"fechaHora\": \"2026-12-01T20:00:00Z\",\n  \"torneoId\": 1,\n  \"escenarioId\": 1,\n  \"equipoLocalId\": 1,\n  \"equipoVisitanteId\": 1\n}"
             },
-            "url": { "raw": "{{baseUrl}}/partidos", "host": ["{{baseUrl}}"], "path": ["partidos"] }
+            "url": {
+              "raw": "{{baseUrl}}/partidos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "partidos"
+              ]
+            }
           },
           "event": [
             {
@@ -234,15 +430,34 @@
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "x-bypass-security", "value": "true" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-bypass-security",
+                "value": "true"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"estado\": \"EN_CURSO\"\n}"
             },
-            "url": { "raw": "{{baseUrl}}/partidos/{{partidoId}}/estado", "host": ["{{baseUrl}}"], "path": ["partidos", "{{partidoId}}", "estado"] }
+            "url": {
+              "raw": "{{baseUrl}}/partidos/{{partidoId}}/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "partidos",
+                "{{partidoId}}",
+                "estado"
+              ]
+            }
           },
           "event": [
             {
@@ -252,6 +467,52 @@
                   "pm.test('Status code es 200', function () { pm.response.to.have.status(200); });"
                 ],
                 "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "HU-GC-07/11: Finalizar Partido y Liquidar Apuestas",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-bypass-security",
+                "value": "true"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_equipo_ganador\": 1,\n  \"es_empate\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/partidos/1/finalizar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "partidos",
+                "1",
+                "finalizar"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code es 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Confirma liquidacion de apuestas\", function () { var j = pm.response.json(); pm.expect(j.success).to.be.true; });"
+                ]
               }
             }
           ]
@@ -266,15 +527,34 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "x-bypass-security", "value": "true" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-bypass-security",
+                "value": "true"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"jugadorId\": 1,\n  \"minuto\": 35,\n  \"descripcion\": \"Gol de volea\"\n}"
             },
-            "url": { "raw": "{{baseUrl}}/partidos/{{partidoId}}/anotaciones", "host": ["{{baseUrl}}"], "path": ["partidos", "{{partidoId}}", "anotaciones"] }
+            "url": {
+              "raw": "{{baseUrl}}/partidos/{{partidoId}}/anotaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "partidos",
+                "{{partidoId}}",
+                "anotaciones"
+              ]
+            }
           },
           "event": [
             {
@@ -298,15 +578,32 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "x-bypass-security", "value": "true" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-bypass-security",
+                "value": "true"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"usuarioId\": 778899,\n  \"nombre\": \"Felipe\",\n  \"apellido\": \"Mendoza\",\n  \"telefono\": \"3107778899\"\n}"
             },
-            "url": { "raw": "{{baseUrl}}/aficionados", "host": ["{{baseUrl}}"], "path": ["aficionados"] }
+            "url": {
+              "raw": "{{baseUrl}}/aficionados",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "aficionados"
+              ]
+            }
           },
           "event": [
             {
@@ -325,10 +622,27 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "x-bypass-security", "value": "true" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-bypass-security",
+                "value": "true"
+              }
             ],
-            "url": { "raw": "{{baseUrl}}/aficionados/{{aficionadoId}}/equipos/1", "host": ["{{baseUrl}}"], "path": ["aficionados", "{{aficionadoId}}", "equipos", "1"] }
+            "url": {
+              "raw": "{{baseUrl}}/aficionados/{{aficionadoId}}/equipos/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "aficionados",
+                "{{aficionadoId}}",
+                "equipos",
+                "1"
+              ]
+            }
           },
           "event": [
             {
@@ -347,15 +661,34 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "x-bypass-security", "value": "true" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-bypass-security",
+                "value": "true"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"metodoPagoId\": 1,\n  \"referencia\": \"Visa Débito terminada en 1122\"\n}"
             },
-            "url": { "raw": "{{baseUrl}}/aficionados/{{aficionadoId}}/metodos-pago", "host": ["{{baseUrl}}"], "path": ["aficionados", "{{aficionadoId}}", "metodos-pago"] }
+            "url": {
+              "raw": "{{baseUrl}}/aficionados/{{aficionadoId}}/metodos-pago",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "aficionados",
+                "{{aficionadoId}}",
+                "metodos-pago"
+              ]
+            }
           },
           "event": [
             {
@@ -379,15 +712,32 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "x-bypass-security", "value": "true" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-bypass-security",
+                "value": "true"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"codigo\": \"BOL-TEST-999\",\n  \"precio\": 80.00,\n  \"partidoId\": 1,\n  \"localidadId\": 1,\n  \"aficionadoId\": 1,\n  \"estado\": \"VALIDO\"\n}"
             },
-            "url": { "raw": "{{baseUrl}}/boletos", "host": ["{{baseUrl}}"], "path": ["boletos"] }
+            "url": {
+              "raw": "{{baseUrl}}/boletos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "boletos"
+              ]
+            }
           },
           "event": [
             {
@@ -406,15 +756,32 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "x-bypass-security", "value": "true" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-bypass-security",
+                "value": "true"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"monto\": 200.00,\n  \"aficionadoId\": 1,\n  \"partidoId\": 1,\n  \"metodoAficionadoId\": 1,\n  \"estado\": \"REGISTRADA\"\n}"
             },
-            "url": { "raw": "{{baseUrl}}/apuestas", "host": ["{{baseUrl}}"], "path": ["apuestas"] }
+            "url": {
+              "raw": "{{baseUrl}}/apuestas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "apuestas"
+              ]
+            }
           },
           "event": [
             {
@@ -438,10 +805,26 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "x-bypass-security", "value": "true" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-bypass-security",
+                "value": "true"
+              }
             ],
-            "url": { "raw": "{{baseUrl}}/torneos/1/desarrollo", "host": ["{{baseUrl}}"], "path": ["torneos", "1", "desarrollo"] }
+            "url": {
+              "raw": "{{baseUrl}}/torneos/1/desarrollo",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "torneos",
+                "1",
+                "desarrollo"
+              ]
+            }
           },
           "event": [
             {
@@ -452,6 +835,87 @@
                   "pm.test('Tiene fases', function () { var j = pm.response.json(); pm.expect(j.fases).to.be.an('array'); });"
                 ],
                 "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "8. Habilidades de Jugadores (HU-GD-07 / HU-GD-08)",
+      "item": [
+        {
+          "name": "HU-GD-08: Consultar Habilidades de Jugador (Contrato B -> A)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-bypass-security",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/jugadores/1/habilidades",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "jugadores",
+                "1",
+                "habilidades"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code es 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Retorna lista de habilidades\", function () { var j = pm.response.json(); pm.expect(Array.isArray(j)).to.be.true; });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "HU-GD-07: Asignar Habilidad a Jugador",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "x-bypass-security",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/jugadores/1/habilidades/4",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "jugadores",
+                "1",
+                "habilidades",
+                "4"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code es 201 o 409\", function () { pm.expect([201, 409]).to.include(pm.response.code); });"
+                ]
               }
             }
           ]

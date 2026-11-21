@@ -50,4 +50,17 @@ export class HabilidadesJugadorService {
       habilidadNombre: h.habilidad?.nombre,
     }));
   }
+
+  async findByHabilidad(habilidadId: number) {
+    const list = await this.repo.find({
+      where: { habilidadId },
+      relations: { jugador: true, habilidad: true },
+    });
+    return list.map((h) => ({
+      jugadorId: Number(h.jugadorId),
+      jugadorNombre: h.jugador?.nombre,
+      habilidadId: Number(h.habilidadId),
+      habilidadNombre: h.habilidad?.nombre,
+    }));
+  }
 }

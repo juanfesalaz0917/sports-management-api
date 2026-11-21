@@ -6,6 +6,7 @@ import { PartidoResponseDto } from './dto/partido-response.dto';
 import { UpdatePartidoEstadoDto } from './dto/update-partido-estado.dto';
 import { Partido } from './entities/partido.entity';
 import { PartidoEquipo } from './entities/partido-equipo.entity';
+import { Apuesta } from '../apuestas/entities/apuesta.entity';
 import { PartidoMapper } from './mappers/partido.mapper';
 import { NotificationsGateway } from '../../gateways/notifications/notifications.gateway';
 import { NotificacionesClient } from '../../core/notifications/notificaciones.client';
@@ -15,6 +16,7 @@ export class PartidosService {
   constructor(
     @InjectRepository(Partido) private readonly partidoRepo: Repository<Partido>,
     @InjectRepository(PartidoEquipo) private readonly peRepo: Repository<PartidoEquipo>,
+    @InjectRepository(Apuesta) private readonly apuestaRepo: Repository<Apuesta>,
     private readonly mapper: PartidoMapper,
     private readonly notificationsGateway: NotificationsGateway,
     private readonly notificacionesClient: NotificacionesClient,
@@ -80,5 +82,36 @@ export class PartidosService {
     partido.estado = dto.estado;
     await this.partidoRepo.save(partido);
     return this.findOne(id);
+  }
+
+  async finalizarPartido(id: number, dto: { id_equipo_ganador?: number; es_empate?: boolean }) {
+    const partido = await this.partidoRepo.findOne({ where: { id } });
+    if (!partido) throw new NotFoundException(`Partido con ID ${id} no encontrado`);
+
+    partido.estado = 'FINALIZADO';
+    await this.partidoRepo.save(partido);
+
+    // Liquidación automática de apuestas (HU-GC-07 y HU-GC-11)
+    const pendientes = await this.apuestaRepo.find({ where: { partidoId: id, estado: 'PENDIENTE' } });
+    for (const ap of pendientes) {
+      if (dto.es_empate) {
+        ap.estado = 'ANULADA';
+      } else if (dto.id_equipo_ganador) {
+        ap.estado = 'GANADA';
+      } else {
+        ap.estado = 'PERDIDA';
+      }
+      await this.apuestaRepo.save(ap);
+    }
+
+    this.notificationsGateway.broadcast('partido_finalizado', { id, resultado: dto });
+    this.notificacionesClient.enviarNotificacion({
+      tipo: 'RESULTADO_REGISTRADO',
+      destinatarios: ['aficionados@torneo.com'],
+      asunto: `Resultado oficial del partido #${id}`,
+      mensaje: `El partido ha finalizado y las apuestas asociadas han sido liquidadas.`,
+    });
+
+    return { success: true, message: `Partido ${id} finalizado y apuestas liquidadas.` };
   }
 }

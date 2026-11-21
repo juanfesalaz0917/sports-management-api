@@ -15,7 +15,7 @@ export class BoletosService {
     @InjectRepository(Partido) private readonly partidoRepo: Repository<Partido>,
     @InjectRepository(Localidad) private readonly localidadRepo: Repository<Localidad>,
     private readonly mapper: BoletoMapper,
-  ) { }
+  ) {}
 
   async create(dto: CreateBoletoDto): Promise<BoletoResponseDto> {
     const partido = await this.partidoRepo.findOne({ where: { id: dto.partidoId } });
@@ -43,5 +43,16 @@ export class BoletosService {
       relations: { partido: true, localidad: true },
     });
     return this.mapper.toResponseDtoList(list);
+  }
+
+  async updateEstado(id: number, estado: string): Promise<BoletoResponseDto> {
+    const boleto = await this.repo.findOne({
+      where: { id },
+      relations: { aficionado: true, localidad: true },
+    });
+    if (!boleto) throw new NotFoundException(`Boleto ${id} no encontrado`);
+    boleto.estado = estado;
+    const saved = await this.repo.save(boleto);
+    return this.mapper.toResponseDto(saved);
   }
 }

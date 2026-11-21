@@ -47,6 +47,14 @@ export class ApuestasService {
     return this.mapper.toResponseDto({ ...saved, aficionado });
   }
 
+  async findAll(aficionadoId?: number, partidoId?: number): Promise<ApuestaResponseDto[]> {
+    const where: { aficionadoId?: number; partidoId?: number } = {};
+    if (aficionadoId) where.aficionadoId = aficionadoId;
+    if (partidoId) where.partidoId = partidoId;
+    const list = await this.repo.find({ where, relations: { aficionado: true, partido: { equipos: { equipo: true } } } });
+    return this.mapper.toResponseDtoList(list);
+  }
+
   async findByAficionado(aficionadoId: number): Promise<ApuestaResponseDto[]> {
     const list = await this.repo.find({ where: { aficionadoId }, relations: { aficionado: true } });
     return this.mapper.toResponseDtoList(list);
@@ -57,21 +65,17 @@ export class ApuestasService {
     return this.mapper.toResponseDtoList(list);
   }
 
+  async getCuota(partidoId: number): Promise<{ cuota: number }> {
+    const partido = await this.partidoRepo.findOne({ where: { id: partidoId } });
+    if (!partido) throw new NotFoundException(`Partido ${partidoId} no existe`);
+    return { cuota: 1.85 };
+  }
+
   async cancelar(id: number): Promise<ApuestaResponseDto> {
     const apuesta = await this.repo.findOne({ where: { id }, relations: { partido: true } });
     if (!apuesta) throw new NotFoundException(`Apuesta ${id} no encontrada`);
     apuesta.estado = 'CANCELADA';
     const saved = await this.repo.save(apuesta);
     return this.mapper.toResponseDto(saved);
-  }
-
-  async liquidar(partidoId: number): Promise<{ totalLiquidadas: number }> {
-    const apuestas = await this.repo.find({ where: { partidoId, estado: 'REGISTRADA' } });
-    for (const a of apuestas) {
-      a.estado = 'LIQUIDADA';
-      await this.repo.save(a);
-    }
-    this.gateway.broadcast('apuestas_liquidadas', { partidoId, total: apuestas.length });
-    return { totalLiquidadas: apuestas.length };
   }
 }

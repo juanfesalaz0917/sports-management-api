@@ -18,6 +18,11 @@ export class AficionadosController {
     return this.service.findAll();
   }
 
+  @Get('usuario/:usuarioId')
+  findByUsuarioId(@Param('usuarioId', ParseIntPipe) usuarioId: number): Promise<AficionadoResponseDto> {
+    return this.service.findOne(usuarioId);
+  }
+
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number): Promise<AficionadoResponseDto> {
     return this.service.findOne(id);
