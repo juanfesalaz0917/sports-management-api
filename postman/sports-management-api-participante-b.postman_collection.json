@@ -1,0 +1,462 @@
+{
+  "info": {
+    "name": "Sports Management API - torneos_deportivos (Participante B)",
+    "description": "Colección completa para pruebas contra la base de datos torneos_deportivos.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "baseurl",
+      "value": "http://localhost:3000/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "dev-token-valido",
+      "type": "string"
+    },
+    {
+      "key": "partidoId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "aficionadoId",
+      "value": "1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "0. Stubs (A y C) - Semilla",
+      "item": [
+        {
+          "name": "Sembrar Datos de Prueba",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "x-bypass-security", "value": "true" }
+            ],
+            "url": { "raw": "{{baseUrl}}/stubs/seed", "host": ["{{baseUrl}}"], "path": ["stubs", "seed"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code es 201', function () { pm.response.to.have.status(201); });",
+                  "pm.test('Datos sembrados en torneos_deportivos', function () { var j = pm.response.json(); pm.expect(j.mensaje).to.include('exitosamente'); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "1. Pelotas (Entidad 15 Roja)",
+      "item": [
+        {
+          "name": "Crear Pelota (Positivo 201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "x-bypass-security", "value": "true" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"marca\": \"Adidas\",\n  \"referencia\": \"Al Rihla 2026\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/pelotas", "host": ["{{baseUrl}}"], "path": ["pelotas"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code es 201', function () { pm.response.to.have.status(201); });",
+                  "pm.test('Retorna ID de pelota', function () { var j = pm.response.json(); pm.expect(j.id).to.be.a('number'); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar Pelotas (200)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "x-bypass-security", "value": "true" }
+            ],
+            "url": { "raw": "{{baseUrl}}/pelotas", "host": ["{{baseUrl}}"], "path": ["pelotas"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code es 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Es un array', function () { pm.expect(pm.response.json()).to.be.an('array'); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. Posiciones Espaciales (Entidad 16 Roja)",
+      "item": [
+        {
+          "name": "Crear Posición Espacial (201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "x-bypass-security", "value": "true" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Delantero Centro\",\n  \"descripcion\": \"Atacante referente de área\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/posiciones-espaciales", "host": ["{{baseUrl}}"], "path": ["posiciones-espaciales"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code es 201', function () { pm.response.to.have.status(201); });",
+                  "pm.test('Tiene nombre', function () { var j = pm.response.json(); pm.expect(j.nombre).to.eq('Delantero Centro'); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar Posiciones Espaciales (200)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "x-bypass-security", "value": "true" }
+            ],
+            "url": { "raw": "{{baseUrl}}/posiciones-espaciales", "host": ["{{baseUrl}}"], "path": ["posiciones-espaciales"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code es 200', function () { pm.response.to.have.status(200); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3. Partidos (Entidad 13 Verde)",
+      "item": [
+        {
+          "name": "Crear Partido (201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "x-bypass-security", "value": "true" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fechaHora\": \"2026-12-01T20:00:00Z\",\n  \"torneoId\": 1,\n  \"faseId\": 1,\n  \"escenarioId\": 1,\n  \"equipoLocalId\": 1,\n  \"equipoVisitanteId\": 2,\n  \"pelotaId\": 1,\n  \"estado\": \"PROGRAMADO\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/partidos", "host": ["{{baseUrl}}"], "path": ["partidos"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code es 201', function () { pm.response.to.have.status(201); });",
+                  "pm.test('Retorna ID', function () { pm.expect(pm.response.json().id).to.be.a('number'); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear Partido mismo equipo contra sí mismo (Negativo 400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "x-bypass-security", "value": "true" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fechaHora\": \"2026-12-01T20:00:00Z\",\n  \"torneoId\": 1,\n  \"escenarioId\": 1,\n  \"equipoLocalId\": 1,\n  \"equipoVisitanteId\": 1\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/partidos", "host": ["{{baseUrl}}"], "path": ["partidos"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code es 400 por regla de negocio', function () { pm.response.to.have.status(400); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Actualizar Estado Partido (200)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "x-bypass-security", "value": "true" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"EN_CURSO\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/partidos/{{partidoId}}/estado", "host": ["{{baseUrl}}"], "path": ["partidos", "{{partidoId}}", "estado"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code es 200', function () { pm.response.to.have.status(200); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4. Anotaciones (Entidad 14 Verde)",
+      "item": [
+        {
+          "name": "Registrar Anotación (201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "x-bypass-security", "value": "true" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"jugadorId\": 1,\n  \"minuto\": 35,\n  \"descripcion\": \"Gol de volea\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/partidos/{{partidoId}}/anotaciones", "host": ["{{baseUrl}}"], "path": ["partidos", "{{partidoId}}", "anotaciones"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code es 201', function () { pm.response.to.have.status(201); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "5. Aficionados, Equipos y Métodos de Pago",
+      "item": [
+        {
+          "name": "Crear Aficionado (201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "x-bypass-security", "value": "true" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuarioId\": 778899,\n  \"nombre\": \"Felipe\",\n  \"apellido\": \"Mendoza\",\n  \"telefono\": \"3107778899\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/aficionados", "host": ["{{baseUrl}}"], "path": ["aficionados"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code 201 o 409', function () { pm.expect([201, 409]).to.include(pm.response.code); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Asociar Equipo Favorito (201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "x-bypass-security", "value": "true" }
+            ],
+            "url": { "raw": "{{baseUrl}}/aficionados/{{aficionadoId}}/equipos/1", "host": ["{{baseUrl}}"], "path": ["aficionados", "{{aficionadoId}}", "equipos", "1"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code 201 o 409', function () { pm.expect([201, 409]).to.include(pm.response.code); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Registrar Método de Pago Aficionado (201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "x-bypass-security", "value": "true" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"metodoPagoId\": 1,\n  \"referencia\": \"Visa Débito terminada en 1122\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/aficionados/{{aficionadoId}}/metodos-pago", "host": ["{{baseUrl}}"], "path": ["aficionados", "{{aficionadoId}}", "metodos-pago"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code es 201', function () { pm.response.to.have.status(201); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "6. Boletos y Apuestas",
+      "item": [
+        {
+          "name": "Emitir Boleto (201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "x-bypass-security", "value": "true" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigo\": \"BOL-TEST-999\",\n  \"precio\": 80.00,\n  \"partidoId\": 1,\n  \"localidadId\": 1,\n  \"aficionadoId\": 1,\n  \"estado\": \"VALIDO\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/boletos", "host": ["{{baseUrl}}"], "path": ["boletos"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code 201 o 500 si codigo repetido', function () { pm.expect([201, 500]).to.include(pm.response.code); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Registrar Apuesta (201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "x-bypass-security", "value": "true" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"monto\": 200.00,\n  \"aficionadoId\": 1,\n  \"partidoId\": 1,\n  \"metodoAficionadoId\": 1,\n  \"estado\": \"REGISTRADA\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/apuestas", "host": ["{{baseUrl}}"], "path": ["apuestas"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code es 201', function () { pm.response.to.have.status(201); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "7. Desarrollo del Torneo (HU-GC-08b)",
+      "item": [
+        {
+          "name": "Consultar Desarrollo del Torneo (200)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "x-bypass-security", "value": "true" }
+            ],
+            "url": { "raw": "{{baseUrl}}/torneos/1/desarrollo", "host": ["{{baseUrl}}"], "path": ["torneos", "1", "desarrollo"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code es 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Tiene fases', function () { var j = pm.response.json(); pm.expect(j.fases).to.be.an('array'); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
