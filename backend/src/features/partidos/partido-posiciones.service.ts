@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { NotificationsGateway } from '../../gateways/notifications/notifications.gateway';
-import { PosicionElementoDto, RegistrarPosicionesLoteDto } from './dto/registrar-posiciones-lote.dto';
+import { PosicionElementoDto } from './dto/registrar-posiciones-lote.dto';
 
 export interface PosicionRegistro extends PosicionElementoDto {
   partidoId: number;

@@ -6,11 +6,12 @@ import { DeportesController } from './deportes.controller';
 import { DeportesService } from './deportes.service';
 import { Deporte } from './entities/deporte.entity';
 import { DeporteMapper } from './mappers/deporte.mapper';
+import { DeporteValidator } from './validators/deporte.validator';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Deporte, EquipoDeporte, Torneo])],
   controllers: [DeportesController],
-  providers: [DeportesService, DeporteMapper],
-  exports: [TypeOrmModule, DeportesService],
+  providers: [DeportesService, DeporteMapper, DeporteValidator],
+  exports: [DeportesService, DeporteMapper, TypeOrmModule],
 })
 export class DeportesModule {}

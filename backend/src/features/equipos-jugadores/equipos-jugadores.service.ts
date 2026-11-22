@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -18,14 +17,10 @@ import {
   EquipoJugadorMapper,
   esVigente,
 } from './mappers/equipo-jugador.mapper';
+import { EquipoJugadorValidator } from './validators/equipo-jugador.validator';
 
 const dia = (f?: string | null): string | null => (f ? f.slice(0, 10) : null);
 
-/**
- * Historial de traspasos. Un jugador puede tener vínculos simultáneos con equipos
- * distintos (p. ej. fútbol y fútbol de salón), pero no dos periodos que se solapen
- * con el mismo equipo. Retirar = cerrar el vínculo con fechaFin; nunca se borra.
- */
 @Injectable()
 export class EquiposJugadoresService {
   constructor(
@@ -36,57 +31,38 @@ export class EquiposJugadoresService {
     @InjectRepository(Jugador)
     private readonly jugadorRepo: Repository<Jugador>,
     private readonly mapper: EquipoJugadorMapper,
+    private readonly validator: EquipoJugadorValidator,
   ) {}
 
-  async asociar(
-    equipoId: number,
-    dto: AsociarJugadorDto,
-  ): Promise<EquipoJugadorResponseDto> {
+  async asociar(equipoId: number, dto: AsociarJugadorDto): Promise<EquipoJugadorResponseDto> {
     const equipo = await this.equipoRepo.findOne({ where: { id: equipoId } });
     if (!equipo) throw new NotFoundException(`Equipo ${equipoId} no existe`);
-    const jugador = await this.jugadorRepo.findOne({
-      where: { id: dto.jugadorId },
-    });
-    if (!jugador)
-      throw new NotFoundException(`Jugador ${dto.jugadorId} no existe`);
-    if (!equipo.activo)
-      throw new BadRequestException(`El equipo ${equipoId} está inactivo`);
-    if (!jugador.activo)
-      throw new BadRequestException(
-        `El jugador ${dto.jugadorId} está inactivo`,
-      );
+    const jugador = await this.jugadorRepo.findOne({ where: { id: dto.jugadorId } });
+    if (!jugador) throw new NotFoundException(`Jugador ${dto.jugadorId} no existe`);
+    if (!equipo.activo) throw new BadRequestException(`El equipo ${equipoId} está inactivo`);
+    if (!jugador.activo) throw new BadRequestException(`El jugador ${dto.jugadorId} está inactivo`);
 
     const inicio = dia(dto.fechaInicio) ?? hoyISO();
     const fin = dia(dto.fechaFin);
-    this.validarRango(inicio, fin);
-    await this.validarSinSolape(equipoId, dto.jugadorId, inicio, fin);
+    this.validator.validarRango(inicio, fin);
+    await this.validator.validarSinSolape(equipoId, dto.jugadorId, inicio, fin);
 
     const saved = await this.repo.save(
-      this.repo.create({
-        equipoId,
-        jugadorId: dto.jugadorId,
-        fechaInicio: inicio,
-        fechaFin: fin,
-      }),
+      this.repo.create({ equipoId, jugadorId: dto.jugadorId, fechaInicio: inicio, fechaFin: fin }),
     );
     return this.mapper.toResponseDto({ ...saved, equipo, jugador });
   }
 
-  /** Actualiza las fechas del vínculo vigente del jugador en el equipo. */
   async actualizar(
     equipoId: number,
     jugadorId: number,
     dto: ActualizarVinculoDto,
   ): Promise<EquipoJugadorResponseDto> {
     const vinculo = await this.buscarVigente(equipoId, jugadorId);
-    const inicio =
-      dto.fechaInicio !== undefined
-        ? dia(dto.fechaInicio)
-        : dia(vinculo.fechaInicio);
-    const fin =
-      dto.fechaFin !== undefined ? dia(dto.fechaFin) : dia(vinculo.fechaFin);
-    this.validarRango(inicio, fin);
-    await this.validarSinSolape(equipoId, jugadorId, inicio, fin, vinculo.id);
+    const inicio = dto.fechaInicio !== undefined ? dia(dto.fechaInicio) : dia(vinculo.fechaInicio);
+    const fin = dto.fechaFin !== undefined ? dia(dto.fechaFin) : dia(vinculo.fechaFin);
+    this.validator.validarRango(inicio, fin);
+    await this.validator.validarSinSolape(equipoId, jugadorId, inicio, fin, vinculo.id);
 
     vinculo.fechaInicio = inicio;
     vinculo.fechaFin = fin;
@@ -94,11 +70,7 @@ export class EquiposJugadoresService {
     return this.mapper.toResponseDto(vinculo);
   }
 
-  /** Retiro: cierra el vínculo vigente (fechaFin = hoy). No borra al jugador ni el historial. */
-  async retirar(
-    equipoId: number,
-    jugadorId: number,
-  ): Promise<EquipoJugadorResponseDto> {
+  async retirar(equipoId: number, jugadorId: number): Promise<EquipoJugadorResponseDto> {
     const vinculo = await this.buscarVigente(equipoId, jugadorId);
     const hoy = hoyISO();
     const inicio = dia(vinculo.fechaInicio);
@@ -112,8 +84,7 @@ export class EquiposJugadoresService {
     query: VinculoQueryDto,
   ): Promise<EquipoJugadorResponseDto[]> {
     const equipo = await this.equipoRepo.findOne({ where: { id: equipoId } });
-    if (!equipo)
-      throw new NotFoundException(`Equipo ${equipoId} no encontrado`);
+    if (!equipo) throw new NotFoundException(`Equipo ${equipoId} no encontrado`);
     return this.listar({ equipoId }, query);
   }
 
@@ -121,15 +92,10 @@ export class EquiposJugadoresService {
     jugadorId: number,
     query: VinculoQueryDto,
   ): Promise<EquipoJugadorResponseDto[]> {
-    const jugador = await this.jugadorRepo.findOne({
-      where: { id: jugadorId },
-    });
-    if (!jugador)
-      throw new NotFoundException(`Jugador ${jugadorId} no encontrado`);
+    const jugador = await this.jugadorRepo.findOne({ where: { id: jugadorId } });
+    if (!jugador) throw new NotFoundException(`Jugador ${jugadorId} no encontrado`);
     return this.listar({ jugadorId }, query);
   }
-
-  // --- reglas internas ---
 
   private async listar(
     where: { equipoId?: number; jugadorId?: number },
@@ -140,68 +106,23 @@ export class EquiposJugadoresService {
       relations: { equipo: true, jugador: true },
       order: { fechaInicio: 'DESC', id: 'DESC' },
     });
-    const filtrada =
-      query.vigentes === undefined
-        ? list
-        : list.filter((v) => esVigente(v) === query.vigentes);
+    const filtrada = query.vigentes === undefined ? list : list.filter((v) => esVigente(v) === query.vigentes);
     return this.mapper.toResponseDtoList(filtrada);
   }
 
-  private async buscarVigente(
-    equipoId: number,
-    jugadorId: number,
-  ): Promise<EquipoJugador> {
+  private async buscarVigente(equipoId: number, jugadorId: number): Promise<EquipoJugador> {
     const vinculos = await this.repo.find({
       where: { equipoId, jugadorId },
       relations: { equipo: true, jugador: true },
       order: { id: 'DESC' },
     });
     if (!vinculos.length) {
-      throw new NotFoundException(
-        `El jugador ${jugadorId} nunca ha estado en el equipo ${equipoId}`,
-      );
+      throw new NotFoundException(`El jugador ${jugadorId} nunca ha estado en el equipo ${equipoId}`);
     }
     const vigente = vinculos.find((v) => esVigente(v));
     if (!vigente) {
-      throw new NotFoundException(
-        `El jugador ${jugadorId} no tiene un vínculo vigente con el equipo ${equipoId}`,
-      );
+      throw new NotFoundException(`El jugador ${jugadorId} no tiene un vínculo vigente con el equipo ${equipoId}`);
     }
     return vigente;
-  }
-
-  private validarRango(inicio: string | null, fin: string | null): void {
-    if (inicio && fin && fin < inicio) {
-      throw new BadRequestException(
-        'fechaFin no puede ser anterior a fechaInicio',
-      );
-    }
-  }
-
-  /** Dos periodos del mismo jugador en el mismo equipo no pueden solaparse. */
-  private async validarSinSolape(
-    equipoId: number,
-    jugadorId: number,
-    inicio: string | null,
-    fin: string | null,
-    excluirId?: number,
-  ): Promise<void> {
-    const existentes = await this.repo.find({ where: { equipoId, jugadorId } });
-    const solapa = existentes.some((v) => {
-      if (excluirId !== undefined && Number(v.id) === excluirId) return false;
-      const vi = dia(v.fechaInicio);
-      const vf = dia(v.fechaFin);
-      // fechaFin exclusiva: un nuevo vínculo puede empezar el mismo día que termina el anterior
-      const empiezaAntesDeQueTermineElOtro = !vf || !inicio || inicio < vf;
-      const elOtroEmpiezaAntesDeQueTermineEste = !fin || !vi || vi < fin;
-      return (
-        empiezaAntesDeQueTermineElOtro && elOtroEmpiezaAntesDeQueTermineEste
-      );
-    });
-    if (solapa) {
-      throw new ConflictException(
-        `El jugador ${jugadorId} ya tiene un vínculo con el equipo ${equipoId} que se solapa con ese periodo`,
-      );
-    }
   }
 }

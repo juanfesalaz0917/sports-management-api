@@ -5,10 +5,11 @@ import { Equipo } from '../equipos/entities/equipo.entity';
 import { GrupoEquipo } from '../grupos/entities/grupo-equipo.entity';
 import { PartidoEquipo } from '../partidos/entities/partido-equipo.entity';
 import { Torneo } from '../torneos/entities/torneo.entity';
-import { Inscripcion } from './entities/inscripcion.entity';
 import { InscripcionesController } from './inscripciones.controller';
 import { InscripcionesService } from './inscripciones.service';
+import { Inscripcion } from './entities/inscripcion.entity';
 import { InscripcionMapper } from './mappers/inscripcion.mapper';
+import { InscripcionValidator } from './validators/inscripcion.validator';
 
 @Module({
   imports: [
@@ -22,7 +23,7 @@ import { InscripcionMapper } from './mappers/inscripcion.mapper';
     ]),
   ],
   controllers: [InscripcionesController],
-  providers: [InscripcionesService, InscripcionMapper],
-  exports: [TypeOrmModule, InscripcionesService],
+  providers: [InscripcionesService, InscripcionMapper, InscripcionValidator],
+  exports: [InscripcionesService, InscripcionMapper, TypeOrmModule],
 })
 export class InscripcionesModule {}

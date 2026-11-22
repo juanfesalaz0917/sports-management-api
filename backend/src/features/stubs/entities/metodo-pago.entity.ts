@@ -1,13 +1,2 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-
-@Entity('metodo_pago')
-export class MetodoPago {
-  @PrimaryGeneratedColumn({ name: 'id_metodo_pago' })
-  id!: number;
-
-  @Column({ length: 100 })
-  nombre!: string;
-
-  @Column({ type: 'text', nullable: true })
-  descripcion?: string;
-}
+// Re-export: la entidad real vive en metodos-pago (C). Se conserva esta ruta para los imports de B.
+export * from '../../metodos-pago/entities/metodo-pago.entity';

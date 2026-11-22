@@ -31,6 +31,8 @@ import { FasesModule } from './features/fases/fases.module';
 import { GruposModule } from './features/grupos/grupos.module';
 import { FasesFinalesModule } from './features/fases-finales/fases-finales.module';
 import { EscenariosTorneosModule } from './features/escenarios-torneos/escenarios-torneos.module';
+import { HabilidadesModule } from './features/habilidades/habilidades.module';
+import { MetodosPagoModule } from './features/metodos-pago/metodos-pago.module';
 
 @Module({
   imports: [
@@ -42,9 +44,9 @@ import { EscenariosTorneosModule } from './features/escenarios-torneos/escenario
         type: 'mysql',
         host: config.get<string>('DB_HOST', 'localhost'),
         port: Number(config.get<number>('DB_PORT', 3306)),
-        username: config.get<string>('DB_USER', 'mySQLjuanfe'),
-        password: config.get<string>('DB_PASS', 'mySQLjuanfe%'),
-        database: config.get<string>('DB_NAME', 'ms_negocio_deportes'),
+        username: config.get<string>('DB_USER', 'mostro'),
+        password: config.get<string>('DB_PASS', '210910624Dj'),
+        database: config.get<string>('DB_NAME', 'torneos_deportivos'),
         autoLoadEntities: true,
         synchronize: false,
       }),
@@ -75,6 +77,8 @@ import { EscenariosTorneosModule } from './features/escenarios-torneos/escenario
     GruposModule,
     FasesFinalesModule,
     EscenariosTorneosModule,
+    HabilidadesModule,
+    MetodosPagoModule,
   ],
   providers: [
     {

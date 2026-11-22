@@ -32,7 +32,7 @@ export class NotificationsGateway
   }
 
   @SubscribeMessage('ping')
-  handlePing(@MessageBody() data: unknown): string {
+  handlePing(@MessageBody() _data: unknown): string {
     return 'pong';
   }
 
