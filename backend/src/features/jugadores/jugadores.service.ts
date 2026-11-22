@@ -1,10 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsWhere, In, Like, Repository } from 'typeorm';
-import {
-  PageResponseDto,
-  toPage,
-} from '../../core/pagination/page-response.dto';
+import { PageResponseDto, toPage } from '../../core/pagination/page-response.dto';
 import { EquipoJugador } from '../equipos-jugadores/entities/equipo-jugador.entity';
 import { esVigente } from '../equipos-jugadores/mappers/equipo-jugador.mapper';
 import { HabilidadJugador } from '../habilidades-jugador/entities/habilidad-jugador.entity';
@@ -12,10 +9,7 @@ import { PosicionEspacial } from '../posiciones-espaciales/entities/posicion-esp
 import { CambiarEstadoJugadorDto } from './dto/cambiar-estado-jugador.dto';
 import { CreateJugadorDto } from './dto/create-jugador.dto';
 import { JugadorQueryDto } from './dto/jugador-query.dto';
-import {
-  JugadorPerfilDto,
-  JugadorResponseDto,
-} from './dto/jugador-response.dto';
+import { JugadorPerfilDto, JugadorResponseDto } from './dto/jugador-response.dto';
 import { UpdateJugadorDto } from './dto/update-jugador.dto';
 import { Jugador } from './entities/jugador.entity';
 import { JugadorMapper } from './mappers/jugador.mapper';
@@ -24,14 +18,10 @@ import { JugadorValidator } from './validators/jugador.validator';
 @Injectable()
 export class JugadoresService {
   constructor(
-    @InjectRepository(Jugador)
-    private readonly repo: Repository<Jugador>,
-    @InjectRepository(PosicionEspacial)
-    private readonly posicionRepo: Repository<PosicionEspacial>,
-    @InjectRepository(EquipoJugador)
-    private readonly equipoJugadorRepo: Repository<EquipoJugador>,
-    @InjectRepository(HabilidadJugador)
-    private readonly habilidadJugadorRepo: Repository<HabilidadJugador>,
+    @InjectRepository(Jugador) private readonly repo: Repository<Jugador>,
+    @InjectRepository(PosicionEspacial) private readonly posicionRepo: Repository<PosicionEspacial>,
+    @InjectRepository(EquipoJugador) private readonly equipoJugadorRepo: Repository<EquipoJugador>,
+    @InjectRepository(HabilidadJugador) private readonly habilidadJugadorRepo: Repository<HabilidadJugador>,
     private readonly mapper: JugadorMapper,
     private readonly validator: JugadorValidator,
   ) {}
@@ -40,7 +30,6 @@ export class JugadoresService {
     this.validator.validarFechaNacimiento(dto.fechaNacimiento);
     await this.validator.validarDocumentoUnico(dto.documento);
     if (dto.posicionId != null) await this.validator.validarPosicion(dto.posicionId);
-
     const saved = await this.repo.save(this.mapper.toEntity(dto));
     return this.findOne(saved.id);
   }
@@ -71,15 +60,8 @@ export class JugadoresService {
   async perfil(id: number): Promise<JugadorPerfilDto> {
     const base = await this.findOne(id);
     const [vinculos, habilidades] = await Promise.all([
-      this.equipoJugadorRepo.find({
-        where: { jugadorId: id },
-        relations: { equipo: true },
-        order: { fechaInicio: 'DESC', id: 'DESC' },
-      }),
-      this.habilidadJugadorRepo.find({
-        where: { jugadorId: id },
-        relations: { habilidad: true },
-      }),
+      this.equipoJugadorRepo.find({ where: { jugadorId: id }, relations: { equipo: true }, order: { fechaInicio: 'DESC', id: 'DESC' } }),
+      this.habilidadJugadorRepo.find({ where: { jugadorId: id }, relations: { habilidad: true } }),
     ]);
 
     const equipos = vinculos.map((v) => ({
@@ -94,11 +76,7 @@ export class JugadoresService {
     return {
       ...base,
       equipos,
-      habilidades: habilidades.map((h) => ({
-        habilidadId: Number(h.habilidadId),
-        nombre: h.habilidad?.nombre,
-        descripcion: h.habilidad?.descripcion ?? undefined,
-      })),
+      habilidades: habilidades.map((h) => ({ habilidadId: Number(h.habilidadId), nombre: h.habilidad?.nombre, descripcion: h.habilidad?.descripcion ?? undefined })),
       mensajeEquipos: equipos.length ? undefined : 'El jugador no tiene equipos asociados',
       mensajeHabilidades: habilidades.length ? undefined : 'El jugador no tiene habilidades registradas',
     };

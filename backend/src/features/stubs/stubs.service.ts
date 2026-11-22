@@ -1,14 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { Pelota } from '../pelotas/entities/pelota.entity';
 import { Deporte } from './entities/deporte.entity';
 import { Equipo } from './entities/equipo.entity';
-import { Torneo } from './entities/torneo.entity';
-import { Fase } from './entities/fase.entity';
 import { Escenario } from './entities/escenario.entity';
-import { Jugador } from './entities/jugador.entity';
+import { Fase } from './entities/fase.entity';
 import { Habilidad } from './entities/habilidad.entity';
+import { Jugador } from './entities/jugador.entity';
 import { MetodoPago } from './entities/metodo-pago.entity';
+import { Torneo } from './entities/torneo.entity';
 
 @Injectable()
 export class StubsService {
@@ -21,7 +22,54 @@ export class StubsService {
     @InjectRepository(Jugador) private readonly jugadorRepo: Repository<Jugador>,
     @InjectRepository(Habilidad) private readonly habilidadRepo: Repository<Habilidad>,
     @InjectRepository(MetodoPago) private readonly metodoPagoRepo: Repository<MetodoPago>,
+    @InjectRepository(Pelota) private readonly pelotaRepo: Repository<Pelota>,
   ) {}
+
+  async getTorneos() {
+    const list = await this.torneoRepo.find({ order: { id: 'ASC' } });
+    return list.map((t) => ({ id: Number(t.id), id_torneo: Number(t.id), nombre: t.nombre }));
+  }
+
+  async getFases(torneoId: number) {
+    const list = await this.faseRepo.find({ where: { torneoId }, order: { orden: 'ASC', id: 'ASC' } });
+    return list.map((f) => ({ id: Number(f.id), id_fase: Number(f.id), nombre: f.nombre, tipo: f.tipo }));
+  }
+
+  async getEscenarios() {
+    const list = await this.escenarioRepo.find({ order: { id: 'ASC' } });
+    return list.map((e) => ({ id: Number(e.id), id_escenario: Number(e.id), nombre: e.nombre, direccion: e.direccion }));
+  }
+
+  async getEquipos() {
+    const list = await this.equipoRepo.find({ order: { id: 'ASC' } });
+    return list.map((eq) => ({ id: Number(eq.id), id_equipo: Number(eq.id), nombre: eq.nombre }));
+  }
+
+  async getJugadores() {
+    const list = await this.jugadorRepo.find({ order: { id: 'ASC' } });
+    return list.map((j) => ({
+      id: Number(j.id),
+      id_jugador: Number(j.id),
+      nombre: j.nombre,
+      apellido: j.apellido,
+      posicionId: j.posicionId,
+    }));
+  }
+
+  async getPelotas() {
+    const list = await this.pelotaRepo.find({ order: { id: 'ASC' } });
+    return list.map((p) => ({ id: Number(p.id), id_pelota: Number(p.id), referencia: p.referencia, marca: p.marca }));
+  }
+
+  async getHabilidades() {
+    const list = await this.habilidadRepo.find({ order: { id: 'ASC' } });
+    return list.map((h) => ({ id: Number(h.id), id_habilidad: Number(h.id), nombre: h.nombre, descripcion: h.descripcion }));
+  }
+
+  async getMetodosPago() {
+    const list = await this.metodoPagoRepo.find({ order: { id: 'ASC' } });
+    return list.map((m) => ({ id: Number(m.id), id_metodo_pago: Number(m.id), nombre: m.nombre, descripcion: m.descripcion }));
+  }
 
   async seedDemoData() {
     let dep = await this.deporteRepo.findOne({ where: { nombre: 'Fútbol' } });

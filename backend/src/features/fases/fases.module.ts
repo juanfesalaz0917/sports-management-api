@@ -8,13 +8,12 @@ import { Fase } from './entities/fase.entity';
 import { FasesController } from './fases.controller';
 import { FasesService } from './fases.service';
 import { FaseMapper } from './mappers/fase.mapper';
+import { FaseValidator } from './validators/fase.validator';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Fase, Torneo, Grupo, FaseFinal, Partido]),
-  ],
+  imports: [TypeOrmModule.forFeature([Fase, Torneo, Grupo, FaseFinal, Partido])],
   controllers: [FasesController],
-  providers: [FasesService, FaseMapper],
+  providers: [FasesService, FaseMapper, FaseValidator],
   exports: [TypeOrmModule, FasesService],
 })
 export class FasesModule {}

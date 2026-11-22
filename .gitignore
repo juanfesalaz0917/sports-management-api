@@ -5,3 +5,6 @@ tutoriales_unzipped/
 *.log
 .DS_Store
 *.code-workspace
+.env
+.env.*
+!.env.example
