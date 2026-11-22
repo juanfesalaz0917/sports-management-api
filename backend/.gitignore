@@ -2,6 +2,10 @@
 /dist
 /node_modules
 /build
+/context
+/.claude
+/context
+CLAUDE.md
 
 # TypeScript build cache
 *.tsbuildinfo
