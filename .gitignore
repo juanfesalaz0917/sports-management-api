@@ -1,0 +1,6 @@
+node_modules/
+dist/
+tutoriales_temp/
+tutoriales_unzipped/
+*.log
+.DS_Store
