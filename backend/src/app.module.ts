@@ -18,6 +18,19 @@ import { AficionadosEquiposModule } from './features/aficionados-equipos/aficion
 import { MetodosPagoAficionadoModule } from './features/metodos-pago-aficionado/metodos-pago-aficionado.module';
 import { ApuestasModule } from './features/apuestas/apuestas.module';
 import { TorneosDesarrolloModule } from './features/torneos-desarrollo/torneos-desarrollo.module';
+// núcleo deportivo + estructura del torneo
+import { DeportesModule } from './features/deportes/deportes.module';
+import { EquiposModule } from './features/equipos/equipos.module';
+import { EquiposDeportesModule } from './features/equipos-deportes/equipos-deportes.module';
+import { JugadoresModule } from './features/jugadores/jugadores.module';
+import { EquiposJugadoresModule } from './features/equipos-jugadores/equipos-jugadores.module';
+import { EscenariosModule } from './features/escenarios/escenarios.module';
+import { TorneosModule } from './features/torneos/torneos.module';
+import { InscripcionesModule } from './features/inscripciones/inscripciones.module';
+import { FasesModule } from './features/fases/fases.module';
+import { GruposModule } from './features/grupos/grupos.module';
+import { FasesFinalesModule } from './features/fases-finales/fases-finales.module';
+import { EscenariosTorneosModule } from './features/escenarios-torneos/escenarios-torneos.module';
 
 @Module({
   imports: [
@@ -29,9 +42,9 @@ import { TorneosDesarrolloModule } from './features/torneos-desarrollo/torneos-d
         type: 'mysql',
         host: config.get<string>('DB_HOST', 'localhost'),
         port: Number(config.get<number>('DB_PORT', 3306)),
-        username: config.get<string>('DB_USER', 'mostro'),
-        password: config.get<string>('DB_PASS', '210910624Dj'),
-        database: config.get<string>('DB_NAME', 'torneos_deportivos'),
+        username: config.get<string>('DB_USER', 'mySQLjuanfe'),
+        password: config.get<string>('DB_PASS', 'mySQLjuanfe%'),
+        database: config.get<string>('DB_NAME', 'ms_negocio_deportes'),
         autoLoadEntities: true,
         synchronize: false,
       }),
@@ -50,6 +63,18 @@ import { TorneosDesarrolloModule } from './features/torneos-desarrollo/torneos-d
     MetodosPagoAficionadoModule,
     ApuestasModule,
     TorneosDesarrolloModule,
+    DeportesModule,
+    EquiposModule,
+    EquiposDeportesModule,
+    JugadoresModule,
+    EquiposJugadoresModule,
+    EscenariosModule,
+    TorneosModule,
+    InscripcionesModule,
+    FasesModule,
+    GruposModule,
+    FasesFinalesModule,
+    EscenariosTorneosModule,
   ],
   providers: [
     {

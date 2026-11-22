@@ -1,13 +1,2 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-
-@Entity('escenario')
-export class Escenario {
-  @PrimaryGeneratedColumn({ name: 'id_escenario' })
-  id!: number;
-
-  @Column({ length: 150 })
-  nombre!: string;
-
-  @Column({ length: 255, nullable: true })
-  direccion?: string;
-}
+// Re-export: la entidad real vive en escenarios (A). Se conserva esta ruta para los imports de B.
+export * from '../../escenarios/entities/escenario.entity';
