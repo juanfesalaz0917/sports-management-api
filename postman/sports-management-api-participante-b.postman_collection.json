@@ -516,6 +516,51 @@
               }
             }
           ]
+        },
+        {
+          "name": "Consultar Partidos por Fase (Contrato A) (200)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/fases/1/partidos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fases",
+                "1",
+                "partidos"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Actualizar Resultado Oficial (PUT 200)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_equipo_ganador\": 1,\n  \"es_empate\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/partidos/{{partidoId}}/resultado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "partidos",
+                "{{partidoId}}",
+                "resultado"
+              ]
+            }
+          }
         }
       ]
     },
@@ -771,7 +816,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"monto\": 200.00,\n  \"aficionadoId\": 1,\n  \"partidoId\": 1,\n  \"metodoAficionadoId\": 1,\n  \"estado\": \"REGISTRADA\"\n}"
+              "raw": "{\n  \"monto\": 200,\n  \"aficionadoId\": 1,\n  \"partidoId\": 1,\n  \"metodoAficionadoId\": 1,\n  \"equipoId\": 1,\n  \"estado\": \"REGISTRADA\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/apuestas",
@@ -794,6 +839,72 @@
               }
             }
           ]
+        },
+        {
+          "name": "Cancelar Apuesta (POST 200)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/apuestas/{{apuestaId}}/cancelar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "apuestas",
+                "{{apuestaId}}",
+                "cancelar"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Mis Apuestas (GET 200)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/apuestas/mis-apuestas?aficionadoId=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "apuestas",
+                "mis-apuestas"
+              ],
+              "query": [
+                {
+                  "key": "aficionadoId",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Registrar Apuesta equipo que no juega (Negativo 400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"monto\": 50,\n  \"aficionadoId\": 1,\n  \"partidoId\": 1,\n  \"metodoAficionadoId\": 1,\n  \"equipoId\": 99999\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/apuestas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "apuestas"
+              ]
+            }
+          }
         }
       ]
     },

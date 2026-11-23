@@ -1,6 +1,7 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
+import { liquidarApuestas, ESTADOS_LIQUIDABLES } from '../apuestas/liquidacion/liquidacion.util';
 import { CreatePartidoDto } from './dto/create-partido.dto';
 import { PartidoResponseDto } from './dto/partido-response.dto';
 import { UpdatePartidoEstadoDto } from './dto/update-partido-estado.dto';
@@ -38,7 +39,7 @@ export class PartidosService {
     this.notificationsGateway.broadcast('nuevo_partido', reloaded);
     this.notificacionesClient.enviarNotificacion({
       tipo: 'PARTIDO_CREADO',
-      destinatarios: ['aficionados@torneo.com'],
+      destinatarios: [],
       asunto: 'Nuevo partido programado',
       mensaje: `Partido programado con ID ${saved.id}`,
     });
@@ -76,6 +77,20 @@ export class PartidosService {
     return this.mapper.toResponseDto(found);
   }
 
+  async findByFase(faseId: number): Promise<PartidoResponseDto[]> {
+    const list = await this.partidoRepo.find({
+      where: { faseId },
+      relations: {
+        torneo: true,
+        fase: true,
+        escenario: true,
+        equipos: { equipo: true },
+        pelota: true,
+      },
+    });
+    return this.mapper.toResponseDtoList(list);
+  }
+
   async updateEstado(id: number, dto: UpdatePartidoEstadoDto): Promise<PartidoResponseDto> {
     const partido = await this.partidoRepo.findOne({ where: { id } });
     if (!partido) throw new NotFoundException(`Partido con ID ${id} no encontrado`);
@@ -87,27 +102,28 @@ export class PartidosService {
   async finalizarPartido(id: number, dto: { id_equipo_ganador?: number; es_empate?: boolean }) {
     const partido = await this.partidoRepo.findOne({ where: { id } });
     if (!partido) throw new NotFoundException(`Partido con ID ${id} no encontrado`);
+    if (partido.estado === 'FINALIZADO' || partido.estado === 'CANCELADO') {
+      throw new ConflictException(`El partido ${id} ya está ${partido.estado}`);
+    }
+    if (!dto.es_empate && dto.id_equipo_ganador) {
+      const participa = await this.peRepo.findOne({ where: { partidoId: id, equipoId: dto.id_equipo_ganador } });
+      if (!participa) throw new BadRequestException('El equipo ganador no participa en el partido');
+    }
 
     partido.estado = 'FINALIZADO';
     await this.partidoRepo.save(partido);
 
-    // Liquidación automática de apuestas (HU-GC-07 y HU-GC-11)
-    const pendientes = await this.apuestaRepo.find({ where: { partidoId: id, estado: 'PENDIENTE' } });
-    for (const ap of pendientes) {
-      if (dto.es_empate) {
-        ap.estado = 'ANULADA';
-      } else if (dto.id_equipo_ganador) {
-        ap.estado = 'GANADA';
-      } else {
-        ap.estado = 'PERDIDA';
-      }
-      await this.apuestaRepo.save(ap);
-    }
+    // Liquidación (HU-GC-07 y HU-GC-11): gana solo quien apostó por el equipo ganador
+    const pendientes = await this.apuestaRepo.find({
+      where: { partidoId: id, estado: In(ESTADOS_LIQUIDABLES) },
+    });
+    const resultado = { ganadorId: dto.id_equipo_ganador, esEmpate: dto.es_empate };
+    await this.apuestaRepo.save(liquidarApuestas(pendientes, resultado));
 
     this.notificationsGateway.broadcast('partido_finalizado', { id, resultado: dto });
     this.notificacionesClient.enviarNotificacion({
       tipo: 'RESULTADO_REGISTRADO',
-      destinatarios: ['aficionados@torneo.com'],
+      destinatarios: [],
       asunto: `Resultado oficial del partido #${id}`,
       mensaje: `El partido ha finalizado y las apuestas asociadas han sido liquidadas.`,
     });

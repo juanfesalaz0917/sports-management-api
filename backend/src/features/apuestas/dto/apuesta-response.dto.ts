@@ -7,4 +7,5 @@ export class ApuestaResponseDto {
   aficionadoNombre?: string;
   partidoId!: number;
   metodoAficionadoId!: number;
+  equipoId?: number;
 }

@@ -23,6 +23,12 @@ export class ApuestasController {
     );
   }
 
+  // Contrato del plan: apuestas del aficionado (el id llega por query hasta contar con contexto JWT)
+  @Get('apuestas/mis-apuestas')
+  findMisApuestas(@Query('aficionadoId', ParseIntPipe) aficionadoId: number): Promise<ApuestaResponseDto[]> {
+    return this.service.findByAficionado(aficionadoId);
+  }
+
   @Get('aficionados/:id/apuestas')
   findByAficionado(@Param('id', ParseIntPipe) aficionadoId: number): Promise<ApuestaResponseDto[]> {
     return this.service.findByAficionado(aficionadoId);
@@ -40,6 +46,11 @@ export class ApuestasController {
 
   @Patch('apuestas/:id/cancelar')
   cancelar(@Param('id', ParseIntPipe) id: number): Promise<ApuestaResponseDto> {
+    return this.service.cancelar(id);
+  }
+
+  @Post('apuestas/:id/cancelar')
+  cancelarPost(@Param('id', ParseIntPipe) id: number): Promise<ApuestaResponseDto> {
     return this.service.cancelar(id);
   }
 }

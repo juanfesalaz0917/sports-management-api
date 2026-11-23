@@ -9,6 +9,8 @@ import { ApuestasService } from './apuestas.service';
 import { Aficionado } from '../aficionados/entities/aficionado.entity';
 import { MetodoPagoAficionado } from '../metodos-pago-aficionado/entities/metodo-pago-aficionado.entity';
 import { Partido } from '../partidos/entities/partido.entity';
+import { PartidoEquipo } from '../partidos/entities/partido-equipo.entity';
+import { ApuestaValidator } from './validators/apuesta.validator';
 
 @Module({
   imports: [
@@ -16,12 +18,13 @@ import { Partido } from '../partidos/entities/partido.entity';
       Apuesta,
       Aficionado,
       Partido,
+      PartidoEquipo,
       MetodoPagoAficionado,
     ]),
     NotificationsModule,
   ],
   controllers: [ApuestasController],
-  providers: [ApuestasService, ApuestaMapper, NotificacionesClient],
+  providers: [ApuestasService, ApuestaMapper, ApuestaValidator, NotificacionesClient],
   exports: [TypeOrmModule, ApuestasService],
 })
 export class ApuestasModule {}

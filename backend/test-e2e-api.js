@@ -124,6 +124,7 @@ async function run() {
       aficionadoId,
       partidoId,
       metodoAficionadoId: mpRes.data.id,
+      equipoId: seedRes.data.equipo1.id,
       estado: 'REGISTRADA'
     }, { headers });
     console.log('✅ Apuesta registrada ID:', apuestaRes.data.id, 'Monto: $', apuestaRes.data.monto);
