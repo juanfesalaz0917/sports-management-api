@@ -2,6 +2,10 @@ node_modules/
 dist/
 tutoriales_temp/
 tutoriales_unzipped/
+/context
+/.claude
+/context
+CLAUDE.md
 *.log
 .DS_Store
 *.code-workspace
