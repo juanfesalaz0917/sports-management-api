@@ -39,7 +39,7 @@ export class ApuestasService {
     this.gateway.broadcast('apuesta_registrada', { aficionadoId: dto.aficionadoId, apuestaId: saved.id });
     this.notificacionesClient.enviarNotificacion({
       tipo: 'APUESTA_REGISTRADA',
-      destinatarios: ['aficionados@torneo.com'],
+      destinatarios: [process.env.NOTIFICATIONS_DEFAULT_RECIPIENT ?? 'aficionados@torneo.com'],
       asunto: 'Apuesta confirmada',
       mensaje: `Apuesta registrada por $${dto.monto}`,
     });

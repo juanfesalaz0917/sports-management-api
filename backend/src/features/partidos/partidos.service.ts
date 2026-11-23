@@ -38,7 +38,7 @@ export class PartidosService {
     this.notificationsGateway.broadcast('nuevo_partido', reloaded);
     this.notificacionesClient.enviarNotificacion({
       tipo: 'PARTIDO_CREADO',
-      destinatarios: ['aficionados@torneo.com'],
+      destinatarios: [process.env.NOTIFICATIONS_DEFAULT_RECIPIENT ?? 'aficionados@torneo.com'],
       asunto: 'Nuevo partido programado',
       mensaje: `Partido programado con ID ${saved.id}`,
     });
@@ -107,7 +107,7 @@ export class PartidosService {
     this.notificationsGateway.broadcast('partido_finalizado', { id, resultado: dto });
     this.notificacionesClient.enviarNotificacion({
       tipo: 'RESULTADO_REGISTRADO',
-      destinatarios: ['aficionados@torneo.com'],
+      destinatarios: [process.env.NOTIFICATIONS_DEFAULT_RECIPIENT ?? 'aficionados@torneo.com'],
       asunto: `Resultado oficial del partido #${id}`,
       mensaje: `El partido ha finalizado y las apuestas asociadas han sido liquidadas.`,
     });

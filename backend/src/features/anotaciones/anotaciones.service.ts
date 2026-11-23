@@ -35,7 +35,7 @@ export class AnotacionesService {
     this.gateway.broadcast('nueva_anotacion', reloaded);
     this.notificacionesClient.enviarNotificacion({
       tipo: 'ANOTACION_REGISTRADA',
-      destinatarios: ['aficionados@torneo.com'],
+      destinatarios: [process.env.NOTIFICATIONS_DEFAULT_RECIPIENT ?? 'aficionados@torneo.com'],
       asunto: '¡Anotación registrada!',
       mensaje: `Anotación al minuto ${dto.minuto} en el partido ${partidoId}`,
     });
