@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
 import { CreateMetodoPagoAficionadoDto } from './dto/create-metodo-pago-aficionado.dto';
 import { MetodoPagoAficionadoResponseDto } from './dto/metodo-pago-aficionado-response.dto';
 import { MetodosPagoAficionadoService } from './metodos-pago-aficionado.service';
@@ -20,6 +20,15 @@ export class MetodosPagoAficionadoController {
     @Param('id', ParseIntPipe) aficionadoId: number,
   ): Promise<MetodoPagoAficionadoResponseDto[]> {
     return this.service.findByAficionado(aficionadoId);
+  }
+
+  @Put('aficionados/:id/metodos-pago/:mpId')
+  update(
+    @Param('id', ParseIntPipe) aficionadoId: number,
+    @Param('mpId', ParseIntPipe) mpId: number,
+    @Body() dto: CreateMetodoPagoAficionadoDto,
+  ) {
+    return this.service.update(aficionadoId, mpId, dto);
   }
 
   @Delete('aficionados/:id/metodos-pago/:mpId')

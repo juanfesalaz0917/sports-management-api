@@ -1,5 +1,5 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
-import { Equipo } from '../../stubs/entities/equipo.entity';
+import { Equipo } from '../../equipos/entities/equipo.entity';
 import { Partido } from './partido.entity';
 
 @Entity('partido_equipo')

@@ -36,8 +36,12 @@ export class ApuestaValidator {
     const participa = await this.peRepo.findOne({ where: { partidoId: dto.partidoId, equipoId: dto.equipoId } });
     if (!participa) throw new BadRequestException('El equipo elegido no participa en el partido');
 
-    const mp = await this.mpRepo.findOne({ where: { id: dto.metodoAficionadoId, aficionadoId: dto.aficionadoId } });
+    const mp = await this.mpRepo.findOne({
+      where: { id: dto.metodoAficionadoId, aficionadoId: dto.aficionadoId },
+      relations: { metodoPago: true },
+    });
     if (!mp) throw new BadRequestException('El método de pago no pertenece al aficionado');
+    if (mp.activo === false || mp.metodoPago?.activo === false) throw new BadRequestException('El método de pago no está activo');
     return aficionado;
   }
 

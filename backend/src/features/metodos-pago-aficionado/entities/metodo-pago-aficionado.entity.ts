@@ -7,7 +7,7 @@ import {
   Unique,
 } from 'typeorm';
 import { Aficionado } from '../../aficionados/entities/aficionado.entity';
-import { MetodoPago } from '../../stubs/entities/metodo-pago.entity';
+import { MetodoPago } from '../../metodos-pago/entities/metodo-pago.entity';
 
 @Entity('metodo_pago_aficionado')
 @Unique('uq_metodo_aficionado', ['id', 'aficionadoId'])
@@ -31,4 +31,7 @@ export class MetodoPagoAficionado {
 
   @Column({ length: 150, nullable: true })
   referencia?: string;
+
+  @Column({ type: 'boolean', default: true })
+  activo!: boolean;
 }

@@ -124,7 +124,7 @@ export class JugadoresService {
     const mapa = new Map<number, string>();
     if (!ids.length) return mapa;
     const posiciones = await this.posicionRepo.findBy({ id: In(ids) });
-    posiciones.forEach((p) => mapa.set(Number(p.id), p.nombre));
+    posiciones.forEach((p) => mapa.set(Number(p.id), p.nombre ?? 'Sin posición'));
     return mapa;
   }
 }

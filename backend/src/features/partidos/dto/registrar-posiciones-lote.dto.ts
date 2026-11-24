@@ -1,15 +1,33 @@
-import { IsArray, IsOptional } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsArray, IsBoolean, IsInt, IsNumber, IsOptional, IsString, Max, Min, ValidateNested } from 'class-validator';
 
-export interface PosicionElementoDto {
+export class PosicionElementoDto {
+  @IsOptional()
+  @IsInt()
   jugadorId?: number;
+
+  @IsOptional()
+  @IsBoolean()
   esPelota?: boolean;
-  x: number;
-  y: number;
+
+  @IsNumber({}, { message: 'x debe ser un número normalizado' })
+  @Min(0)
+  @Max(1)
+  x!: number;
+
+  @IsNumber({}, { message: 'y debe ser un número normalizado' })
+  @Min(0)
+  @Max(1)
+  y!: number;
+
+  @IsOptional()
+  @IsString()
   timestamp?: string;
 }
 
 export class RegistrarPosicionesLoteDto {
   @IsArray()
-  @IsOptional()
+  @ValidateNested({ each: true })
+  @Type(() => PosicionElementoDto)
   posiciones!: PosicionElementoDto[];
 }

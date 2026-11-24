@@ -2,8 +2,8 @@ import { ConflictException, Injectable, NotFoundException } from '@nestjs/common
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { HabilidadJugador } from './entities/habilidad-jugador.entity';
-import { Habilidad } from '../stubs/entities/habilidad.entity';
-import { Jugador } from '../stubs/entities/jugador.entity';
+import { Habilidad } from '../habilidades/entities/habilidad.entity';
+import { Jugador } from '../jugadores/entities/jugador.entity';
 
 @Injectable()
 export class HabilidadesJugadorService {
@@ -30,7 +30,6 @@ export class HabilidadesJugadorService {
     try {
       await this.repo.save(entity);
     } catch (e) {
-      // Carrera entre dos peticiones: la PK compuesta rechaza el duplicado
       if ((e as { code?: string }).code === 'ER_DUP_ENTRY') {
         throw new ConflictException('El jugador ya tiene asignada esta habilidad');
       }
@@ -56,6 +55,7 @@ export class HabilidadesJugadorService {
       jugadorNombre: h.jugador?.nombre,
       habilidadId: Number(h.habilidadId),
       habilidadNombre: h.habilidad?.nombre,
+      habilidad: h.habilidad ? { id: Number(h.habilidad.id), nombre: h.habilidad.nombre, descripcion: h.habilidad.descripcion } : undefined,
     }));
   }
 

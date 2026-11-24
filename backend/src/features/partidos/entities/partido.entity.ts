@@ -6,9 +6,9 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Escenario } from '../../stubs/entities/escenario.entity';
-import { Fase } from '../../stubs/entities/fase.entity';
-import { Torneo } from '../../stubs/entities/torneo.entity';
+import { Escenario } from '../../escenarios/entities/escenario.entity';
+import { Fase } from '../../fases/entities/fase.entity';
+import { Torneo } from '../../torneos/entities/torneo.entity';
 import { Pelota } from '../../pelotas/entities/pelota.entity';
 import { PartidoEquipo } from './partido-equipo.entity';
 

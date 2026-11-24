@@ -5,12 +5,10 @@ import { MetodoPagoAficionadoMapper } from './mappers/metodo-pago-aficionado.map
 import { MetodosPagoAficionadoController } from './metodos-pago-aficionado.controller';
 import { MetodosPagoAficionadoService } from './metodos-pago-aficionado.service';
 import { Aficionado } from '../aficionados/entities/aficionado.entity';
-import { MetodoPago } from '../stubs/entities/metodo-pago.entity';
+import { MetodoPago } from '../metodos-pago/entities/metodo-pago.entity';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([MetodoPagoAficionado, Aficionado, MetodoPago]),
-  ],
+  imports: [TypeOrmModule.forFeature([MetodoPagoAficionado, Aficionado, MetodoPago])],
   controllers: [MetodosPagoAficionadoController],
   providers: [MetodosPagoAficionadoService, MetodoPagoAficionadoMapper],
   exports: [TypeOrmModule, MetodosPagoAficionadoService],

@@ -10,4 +10,7 @@ export class MetodoPago {
 
   @Column({ type: 'text', nullable: true })
   descripcion?: string;
+
+  @Column({ type: 'boolean', default: true })
+  activo!: boolean;
 }

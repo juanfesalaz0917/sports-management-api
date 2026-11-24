@@ -90,12 +90,12 @@ export class PartidosController {
   registrarPosiciones(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: RegistrarPosicionesLoteDto,
-  ): PosicionRegistro[] {
+  ): Promise<PosicionRegistro[]> {
     return this.posicionesService.registrarLote(id, dto);
   }
 
   @Get('partidos/:id/posiciones/ultimas')
-  obtenerUltimasPosiciones(@Param('id', ParseIntPipe) id: number): PosicionRegistro[] {
+  obtenerUltimasPosiciones(@Param('id', ParseIntPipe) id: number): Promise<PosicionRegistro[]> {
     return this.posicionesService.obtenerUltimas(id);
   }
 
@@ -103,7 +103,7 @@ export class PartidosController {
   obtenerPosiciones(
     @Param('id', ParseIntPipe) id: number,
     @Query('desde') desde?: string,
-  ): PosicionRegistro[] {
+  ): Promise<PosicionRegistro[]> {
     return this.posicionesService.obtenerHistorial(id, desde);
   }
 }

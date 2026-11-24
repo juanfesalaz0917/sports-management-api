@@ -1,6 +1,6 @@
 import { Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
-import { Habilidad } from '../../stubs/entities/habilidad.entity';
-import { Jugador } from '../../stubs/entities/jugador.entity';
+import { Habilidad } from '../../habilidades/entities/habilidad.entity';
+import { Jugador } from '../../jugadores/entities/jugador.entity';
 
 @Entity('habilidad_jugador')
 export class HabilidadJugador {

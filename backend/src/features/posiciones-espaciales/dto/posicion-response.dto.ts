@@ -1,5 +1,5 @@
 export class PosicionEspacialResponseDto {
   id!: number;
-  nombre!: string;
+  nombre?: string;
   descripcion?: string;
 }
