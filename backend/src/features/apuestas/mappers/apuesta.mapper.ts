@@ -10,6 +10,7 @@ export class ApuestaMapper {
     a.aficionadoId = dto.aficionadoId;
     a.partidoId = dto.partidoId;
     a.metodoAficionadoId = dto.metodoAficionadoId;
+    a.equipoId = dto.equipoId;
     a.monto = dto.monto;
     a.fechaHora = new Date();
     a.estado = dto.estado || 'REGISTRADA';
@@ -26,6 +27,7 @@ export class ApuestaMapper {
       aficionadoNombre: entity.aficionado?.nombre,
       partidoId: Number(entity.partidoId),
       metodoAficionadoId: Number(entity.metodoAficionadoId),
+      equipoId: entity.equipoId ? Number(entity.equipoId) : undefined,
     };
   }
 

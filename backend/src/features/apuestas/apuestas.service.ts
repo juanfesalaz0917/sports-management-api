@@ -1,40 +1,33 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { PageQueryDto } from '../../core/pagination/page-query.dto';
+import { PageResponseDto, toPage } from '../../core/pagination/page-response.dto';
 import { CreateApuestaDto } from './dto/create-apuesta.dto';
 import { ApuestaResponseDto } from './dto/apuesta-response.dto';
 import { Apuesta } from './entities/apuesta.entity';
 import { ApuestaMapper } from './mappers/apuesta.mapper';
-import { Aficionado } from '../aficionados/entities/aficionado.entity';
-import { MetodoPagoAficionado } from '../metodos-pago-aficionado/entities/metodo-pago-aficionado.entity';
-import { Partido } from '../partidos/entities/partido.entity';
+import { ApuestaValidator } from './validators/apuesta.validator';
 import { NotificationsGateway } from '../../gateways/notifications/notifications.gateway';
 import { NotificacionesClient } from '../../core/notifications/notificaciones.client';
+
+const CUOTA_POR_DEFECTO = 1.85;
 
 @Injectable()
 export class ApuestasService {
   constructor(
     @InjectRepository(Apuesta) private readonly repo: Repository<Apuesta>,
-    @InjectRepository(Aficionado) private readonly aficionadoRepo: Repository<Aficionado>,
-    @InjectRepository(Partido) private readonly partidoRepo: Repository<Partido>,
-    @InjectRepository(MetodoPagoAficionado) private readonly mpRepo: Repository<MetodoPagoAficionado>,
+    private readonly validator: ApuestaValidator,
     private readonly mapper: ApuestaMapper,
     private readonly gateway: NotificationsGateway,
     private readonly notificacionesClient: NotificacionesClient,
+    private readonly config: ConfigService,
   ) {}
 
   async create(dto: CreateApuestaDto): Promise<ApuestaResponseDto> {
-    const aficionado = await this.aficionadoRepo.findOne({ where: { id: dto.aficionadoId } });
-    if (!aficionado) throw new NotFoundException(`Aficionado ${dto.aficionadoId} no existe`);
-
-    const partido = await this.partidoRepo.findOne({ where: { id: dto.partidoId } });
-    if (!partido) throw new NotFoundException(`Partido ${dto.partidoId} no existe`);
-
-    const mp = await this.mpRepo.findOne({ where: { id: dto.metodoAficionadoId, aficionadoId: dto.aficionadoId } });
-    if (!mp) throw new BadRequestException('El método de pago no pertenece al aficionado');
-
-    const entity = this.mapper.toEntity(dto);
-    const saved = await this.repo.save(entity);
+    const aficionado = await this.validator.validarCreacion(dto);
+    const saved = await this.repo.save(this.mapper.toEntity(dto));
 
     this.gateway.broadcast('apuesta_registrada', { aficionadoId: dto.aficionadoId, apuestaId: saved.id });
     this.notificacionesClient.enviarNotificacion({
@@ -43,16 +36,25 @@ export class ApuestasService {
       asunto: 'Apuesta confirmada',
       mensaje: `Apuesta registrada por $${dto.monto}`,
     });
-
     return this.mapper.toResponseDto({ ...saved, aficionado });
   }
 
-  async findAll(aficionadoId?: number, partidoId?: number): Promise<ApuestaResponseDto[]> {
+  async findAll(
+    aficionadoId?: number,
+    partidoId?: number,
+    query: PageQueryDto = new PageQueryDto(),
+  ): Promise<PageResponseDto<ApuestaResponseDto>> {
     const where: { aficionadoId?: number; partidoId?: number } = {};
     if (aficionadoId) where.aficionadoId = aficionadoId;
     if (partidoId) where.partidoId = partidoId;
-    const list = await this.repo.find({ where, relations: { aficionado: true, partido: { equipos: { equipo: true } } } });
-    return this.mapper.toResponseDtoList(list);
+    const [list, total] = await this.repo.findAndCount({
+      where,
+      relations: { aficionado: true, partido: { equipos: { equipo: true } } },
+      order: { fechaHora: 'DESC', id: 'DESC' },
+      skip: query.page * query.size,
+      take: query.size,
+    });
+    return toPage(this.mapper.toResponseDtoList(list), total, query);
   }
 
   async findByAficionado(aficionadoId: number): Promise<ApuestaResponseDto[]> {
@@ -66,16 +68,16 @@ export class ApuestasService {
   }
 
   async getCuota(partidoId: number): Promise<{ cuota: number }> {
-    const partido = await this.partidoRepo.findOne({ where: { id: partidoId } });
-    if (!partido) throw new NotFoundException(`Partido ${partidoId} no existe`);
-    return { cuota: 1.85 };
+    await this.validator.buscarPartido(partidoId);
+    const configurada = Number(this.config.get<string>('CUOTA_BASE'));
+    return { cuota: configurada > 1 ? configurada : CUOTA_POR_DEFECTO };
   }
 
   async cancelar(id: number): Promise<ApuestaResponseDto> {
     const apuesta = await this.repo.findOne({ where: { id }, relations: { partido: true } });
     if (!apuesta) throw new NotFoundException(`Apuesta ${id} no encontrada`);
+    this.validator.validarCancelable(apuesta);
     apuesta.estado = 'CANCELADA';
-    const saved = await this.repo.save(apuesta);
-    return this.mapper.toResponseDto(saved);
+    return this.mapper.toResponseDto(await this.repo.save(apuesta));
   }
 }

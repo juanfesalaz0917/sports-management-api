@@ -7,6 +7,8 @@ export interface PosicionRegistro extends PosicionElementoDto {
   timestamp: string;
 }
 
+const MAX_REGISTROS_POR_PARTIDO = 500;
+
 @Injectable()
 export class PartidoPosicionesService {
   // Historial en memoria por partido para la pizarra en vivo (HU-GC-09)
@@ -39,7 +41,8 @@ export class PartidoPosicionesService {
       timestamp: p.timestamp || ahora,
     }));
 
-    const actualizado = [...existentes, ...nuevos];
+    // Se acota el historial en memoria para evitar crecimiento indefinido
+    const actualizado = [...existentes, ...nuevos].slice(-MAX_REGISTROS_POR_PARTIDO);
     this.historial.set(id, actualizado);
 
     // Broadcast WebSocket inmediato a los clientes conectados a la pizarra

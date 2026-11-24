@@ -6,8 +6,11 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Put,
   Query,
 } from '@nestjs/common';
+import { PageQueryDto } from '../../core/pagination/page-query.dto';
+import { PageResponseDto } from '../../core/pagination/page-response.dto';
 import { CreatePartidoDto } from './dto/create-partido.dto';
 import { PartidoResponseDto } from './dto/partido-response.dto';
 import { UpdatePartidoEstadoDto } from './dto/update-partido-estado.dto';
@@ -15,34 +18,42 @@ import { RegistrarPosicionesLoteDto } from './dto/registrar-posiciones-lote.dto'
 import { PartidosService } from './partidos.service';
 import { PartidoPosicionesService, PosicionRegistro } from './partido-posiciones.service';
 
-@Controller('api/v1/partidos')
+@Controller('api/v1')
 export class PartidosController {
   constructor(
     private readonly service: PartidosService,
     private readonly posicionesService: PartidoPosicionesService,
   ) {}
 
-  @Post()
+  @Post('partidos')
   create(@Body() dto: CreatePartidoDto): Promise<PartidoResponseDto> {
     return this.service.create(dto);
   }
 
-  @Get('disponibles-apuesta')
+  @Get('partidos/disponibles-apuesta')
   findDisponiblesApuesta(): Promise<PartidoResponseDto[]> {
-    return this.service.findAll();
+    return this.service.findDisponiblesApuesta();
   }
 
-  @Get()
-  findAll(@Query('torneoId') torneoId?: string): Promise<PartidoResponseDto[]> {
-    return this.service.findAll(torneoId ? parseInt(torneoId, 10) : undefined);
+  @Get('partidos')
+  findAll(
+    @Query('torneoId') torneoId?: string,
+    @Query() query?: PageQueryDto,
+  ): Promise<PageResponseDto<PartidoResponseDto>> {
+    return this.service.findAll(torneoId ? parseInt(torneoId, 10) : undefined, query);
   }
 
-  @Get(':id')
+  @Get('partidos/:id')
   findOne(@Param('id', ParseIntPipe) id: number): Promise<PartidoResponseDto> {
     return this.service.findOne(id);
   }
 
-  @Patch(':id/estado')
+  @Get('fases/:faseId/partidos')
+  findByFase(@Param('faseId', ParseIntPipe) faseId: number): Promise<PartidoResponseDto[]> {
+    return this.service.findByFase(faseId);
+  }
+
+  @Patch('partidos/:id/estado')
   updateEstado(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdatePartidoEstadoDto,
@@ -50,7 +61,7 @@ export class PartidosController {
     return this.service.updateEstado(id, dto);
   }
 
-  @Post(':id/finalizar')
+  @Post('partidos/:id/finalizar')
   finalizar(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: { id_equipo_ganador?: number; es_empate?: boolean },
@@ -58,7 +69,7 @@ export class PartidosController {
     return this.service.finalizarPartido(id, dto);
   }
 
-  @Post(':id/resultado')
+  @Post('partidos/:id/resultado')
   registrarResultado(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: { id_equipo_ganador?: number; es_empate?: boolean },
@@ -66,8 +77,16 @@ export class PartidosController {
     return this.service.finalizarPartido(id, dto);
   }
 
+  @Put('partidos/:id/resultado')
+  actualizarResultado(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: { id_equipo_ganador?: number; es_empate?: boolean },
+  ) {
+    return this.service.finalizarPartido(id, dto);
+  }
+
   // HU-GC-09: Seguimiento deportivo en vivo (Pizarra Táctica)
-  @Post(':id/posiciones')
+  @Post('partidos/:id/posiciones')
   registrarPosiciones(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: RegistrarPosicionesLoteDto,
@@ -75,12 +94,12 @@ export class PartidosController {
     return this.posicionesService.registrarLote(id, dto);
   }
 
-  @Get(':id/posiciones/ultimas')
+  @Get('partidos/:id/posiciones/ultimas')
   obtenerUltimasPosiciones(@Param('id', ParseIntPipe) id: number): PosicionRegistro[] {
     return this.posicionesService.obtenerUltimas(id);
   }
 
-  @Get(':id/posiciones')
+  @Get('partidos/:id/posiciones')
   obtenerPosiciones(
     @Param('id', ParseIntPipe) id: number,
     @Query('desde') desde?: string,

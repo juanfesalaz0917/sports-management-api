@@ -1,4 +1,6 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
+import { PageQueryDto } from '../../core/pagination/page-query.dto';
+import { PageResponseDto } from '../../core/pagination/page-response.dto';
 import { CreatePelotaDto } from './dto/create-pelota.dto';
 import { PelotaResponseDto } from './dto/pelota-response.dto';
 import { UpdatePelotaDto } from './dto/update-pelota.dto';
@@ -14,8 +16,8 @@ export class PelotasController {
   }
 
   @Get()
-  findAll(): Promise<PelotaResponseDto[]> {
-    return this.service.findAll();
+  findAll(@Query() query: PageQueryDto): Promise<PageResponseDto<PelotaResponseDto>> {
+    return this.service.findAll(query);
   }
 
   @Get(':id')

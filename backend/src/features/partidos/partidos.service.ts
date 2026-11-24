@@ -1,6 +1,9 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
+import { PageQueryDto } from '../../core/pagination/page-query.dto';
+import { PageResponseDto, toPage } from '../../core/pagination/page-response.dto';
+import { liquidarApuestas, ESTADOS_LIQUIDABLES } from '../apuestas/liquidacion/liquidacion.util';
 import { CreatePartidoDto } from './dto/create-partido.dto';
 import { PartidoResponseDto } from './dto/partido-response.dto';
 import { UpdatePartidoEstadoDto } from './dto/update-partido-estado.dto';
@@ -46,17 +49,22 @@ export class PartidosService {
     return reloaded;
   }
 
-  async findAll(torneoId?: number): Promise<PartidoResponseDto[]> {
+  async findAll(torneoId?: number, query: PageQueryDto = new PageQueryDto()): Promise<PageResponseDto<PartidoResponseDto>> {
     const where = torneoId ? { torneoId } : {};
-    const list = await this.partidoRepo.find({
+    const [list, total] = await this.partidoRepo.findAndCount({
       where,
-      relations: {
-        torneo: true,
-        fase: true,
-        escenario: true,
-        equipos: { equipo: true },
-        pelota: true,
-      },
+      relations: { torneo: true, fase: true, escenario: true, equipos: { equipo: true }, pelota: true },
+      order: { fechaHora: 'DESC', id: 'DESC' },
+      skip: query.page * query.size,
+      take: query.size,
+    });
+    return toPage(this.mapper.toResponseDtoList(list), total, query);
+  }
+
+  async findDisponiblesApuesta(): Promise<PartidoResponseDto[]> {
+    const list = await this.partidoRepo.find({
+      where: { estado: 'PROGRAMADO' },
+      relations: { torneo: true, fase: true, escenario: true, equipos: { equipo: true }, pelota: true },
     });
     return this.mapper.toResponseDtoList(list);
   }
@@ -76,6 +84,20 @@ export class PartidosService {
     return this.mapper.toResponseDto(found);
   }
 
+  async findByFase(faseId: number): Promise<PartidoResponseDto[]> {
+    const list = await this.partidoRepo.find({
+      where: { faseId },
+      relations: {
+        torneo: true,
+        fase: true,
+        escenario: true,
+        equipos: { equipo: true },
+        pelota: true,
+      },
+    });
+    return this.mapper.toResponseDtoList(list);
+  }
+
   async updateEstado(id: number, dto: UpdatePartidoEstadoDto): Promise<PartidoResponseDto> {
     const partido = await this.partidoRepo.findOne({ where: { id } });
     if (!partido) throw new NotFoundException(`Partido con ID ${id} no encontrado`);
@@ -87,22 +109,23 @@ export class PartidosService {
   async finalizarPartido(id: number, dto: { id_equipo_ganador?: number; es_empate?: boolean }) {
     const partido = await this.partidoRepo.findOne({ where: { id } });
     if (!partido) throw new NotFoundException(`Partido con ID ${id} no encontrado`);
+    if (partido.estado === 'FINALIZADO' || partido.estado === 'CANCELADO') {
+      throw new ConflictException(`El partido ${id} ya está ${partido.estado}`);
+    }
+    if (!dto.es_empate && dto.id_equipo_ganador) {
+      const participa = await this.peRepo.findOne({ where: { partidoId: id, equipoId: dto.id_equipo_ganador } });
+      if (!participa) throw new BadRequestException('El equipo ganador no participa en el partido');
+    }
 
     partido.estado = 'FINALIZADO';
     await this.partidoRepo.save(partido);
 
-    // Liquidación automática de apuestas (HU-GC-07 y HU-GC-11)
-    const pendientes = await this.apuestaRepo.find({ where: { partidoId: id, estado: 'PENDIENTE' } });
-    for (const ap of pendientes) {
-      if (dto.es_empate) {
-        ap.estado = 'ANULADA';
-      } else if (dto.id_equipo_ganador) {
-        ap.estado = 'GANADA';
-      } else {
-        ap.estado = 'PERDIDA';
-      }
-      await this.apuestaRepo.save(ap);
-    }
+    // Liquidación (HU-GC-07 y HU-GC-11): gana solo quien apostó por el equipo ganador
+    const pendientes = await this.apuestaRepo.find({
+      where: { partidoId: id, estado: In(ESTADOS_LIQUIDABLES) },
+    });
+    const resultado = { ganadorId: dto.id_equipo_ganador, esEmpate: dto.es_empate };
+    await this.apuestaRepo.save(liquidarApuestas(pendientes, resultado));
 
     this.notificationsGateway.broadcast('partido_finalizado', { id, resultado: dto });
     this.notificacionesClient.enviarNotificacion({

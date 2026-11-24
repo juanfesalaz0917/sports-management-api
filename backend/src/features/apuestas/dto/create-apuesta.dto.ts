@@ -14,6 +14,13 @@ export class CreateApuestaDto {
   @IsInt()
   metodoAficionadoId!: number;
 
+  @Transform(({ obj, value }) => {
+    const raw = value ?? obj.id_equipo ?? obj.id_equipo_seleccionado;
+    return raw !== undefined ? Number(raw) : undefined;
+  })
+  @IsInt()
+  equipoId!: number;
+
   @Transform(({ value }) => (value !== undefined ? Number(value) : undefined))
   @IsNumber()
   @Min(1.0, { message: 'El monto mínimo de apuesta es 1.0' })

@@ -1,4 +1,6 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
+import { PageQueryDto } from '../../core/pagination/page-query.dto';
+import { PageResponseDto } from '../../core/pagination/page-response.dto';
 import { CreateAficionadoDto } from './dto/create-aficionado.dto';
 import { AficionadoResponseDto } from './dto/aficionado-response.dto';
 import { UpdateAficionadoDto } from './dto/update-aficionado.dto';
@@ -14,13 +16,13 @@ export class AficionadosController {
   }
 
   @Get()
-  findAll(): Promise<AficionadoResponseDto[]> {
-    return this.service.findAll();
+  findAll(@Query() query: PageQueryDto): Promise<PageResponseDto<AficionadoResponseDto>> {
+    return this.service.findAll(query);
   }
 
   @Get('usuario/:usuarioId')
   findByUsuarioId(@Param('usuarioId', ParseIntPipe) usuarioId: number): Promise<AficionadoResponseDto> {
-    return this.service.findOne(usuarioId);
+    return this.service.findByUsuarioId(usuarioId);
   }
 
   @Get(':id')

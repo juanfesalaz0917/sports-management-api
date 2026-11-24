@@ -43,4 +43,8 @@ export class Apuesta {
 
   @Column({ name: 'id_metodo_aficionado', type: 'bigint' })
   metodoAficionadoId!: number;
+
+  // Equipo por el que apuesta el aficionado (necesario para liquidar correctamente)
+  @Column({ name: 'id_equipo_seleccionado', type: 'bigint', nullable: true })
+  equipoId?: number;
 }

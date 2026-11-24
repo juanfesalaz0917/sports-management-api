@@ -1,6 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { PageQueryDto } from '../../core/pagination/page-query.dto';
+import { PageResponseDto, toPage } from '../../core/pagination/page-response.dto';
 import { CreatePelotaDto } from './dto/create-pelota.dto';
 import { PelotaResponseDto } from './dto/pelota-response.dto';
 import { UpdatePelotaDto } from './dto/update-pelota.dto';
@@ -21,9 +23,13 @@ export class PelotasService {
     return this.mapper.toResponseDto(saved);
   }
 
-  async findAll(): Promise<PelotaResponseDto[]> {
-    const list = await this.pelotaRepo.find();
-    return this.mapper.toResponseDtoList(list);
+  async findAll(query: PageQueryDto = new PageQueryDto()): Promise<PageResponseDto<PelotaResponseDto>> {
+    const [list, total] = await this.pelotaRepo.findAndCount({
+      order: { id: 'DESC' },
+      skip: query.page * query.size,
+      take: query.size,
+    });
+    return toPage(this.mapper.toResponseDtoList(list), total, query);
   }
 
   async findOne(id: number): Promise<PelotaResponseDto> {
