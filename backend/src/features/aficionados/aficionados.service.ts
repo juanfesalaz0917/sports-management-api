@@ -41,6 +41,12 @@ export class AficionadosService {
     return this.mapper.toResponseDto(found);
   }
 
+  async findByUsuarioId(usuarioId: number): Promise<AficionadoResponseDto> {
+    const found = await this.repo.findOne({ where: { usuarioId } });
+    if (!found) throw new NotFoundException(`Aficionado para usuario ${usuarioId} no encontrado`);
+    return this.mapper.toResponseDto(found);
+  }
+
   async update(id: number, dto: UpdateAficionadoDto): Promise<AficionadoResponseDto> {
     const found = await this.repo.findOne({ where: { id } });
     if (!found) throw new NotFoundException(`Aficionado ${id} no encontrado`);

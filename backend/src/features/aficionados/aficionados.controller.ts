@@ -22,7 +22,7 @@ export class AficionadosController {
 
   @Get('usuario/:usuarioId')
   findByUsuarioId(@Param('usuarioId', ParseIntPipe) usuarioId: number): Promise<AficionadoResponseDto> {
-    return this.service.findOne(usuarioId);
+    return this.service.findByUsuarioId(usuarioId);
   }
 
   @Get(':id')
