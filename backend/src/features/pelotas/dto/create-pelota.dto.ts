@@ -1,9 +1,9 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreatePelotaDto {
   @IsString()
-  @IsOptional()
-  referencia?: string;
+  @IsNotEmpty({ message: 'La referencia de la pelota es obligatoria' })
+  referencia!: string;
 
   @IsString()
   @IsOptional()

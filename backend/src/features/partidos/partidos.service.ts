@@ -1,9 +1,10 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException, Optional } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { PageQueryDto } from '../../core/pagination/page-query.dto';
 import { PageResponseDto, toPage } from '../../core/pagination/page-response.dto';
 import { liquidarApuestas, ESTADOS_LIQUIDABLES } from '../apuestas/liquidacion/liquidacion.util';
+import { PartidoValidator } from './validators/partido.validator';
 import { CreatePartidoDto } from './dto/create-partido.dto';
 import { PartidoResponseDto } from './dto/partido-response.dto';
 import { UpdatePartidoEstadoDto } from './dto/update-partido-estado.dto';
@@ -23,12 +24,14 @@ export class PartidosService {
     private readonly mapper: PartidoMapper,
     private readonly notificationsGateway: NotificationsGateway,
     private readonly notificacionesClient: NotificacionesClient,
+    @Optional() private readonly validator?: PartidoValidator,
   ) {}
 
   async create(dto: CreatePartidoDto): Promise<PartidoResponseDto> {
     if (dto.equipoLocalId === dto.equipoVisitanteId) {
       throw new BadRequestException('Un equipo no puede jugar contra sí mismo');
     }
+    if (this.validator) await this.validator.validarReferencias(dto);
     const entity = this.mapper.toEntity(dto);
     const saved = await this.partidoRepo.save(entity);
 
