@@ -1,6 +1,6 @@
 -- Migración: la apuesta debe registrar el equipo elegido para poder liquidarse correctamente.
 -- Las apuestas existentes quedan con NULL y se anulan (reembolso) al liquidar.
-USE torneos_deportivos;
+USE ms_negocio_deportes;
 
 ALTER TABLE apuesta
     ADD COLUMN id_equipo_seleccionado BIGINT NULL,
