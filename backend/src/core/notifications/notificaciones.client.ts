@@ -41,7 +41,7 @@ export class NotificacionesClient {
     }
 
     try {
-      await axios.post(`${url}/api/v1/notificaciones`, { ...payload, destinatarios }, { timeout: 3000 });
+      await axios.post(`${baseUrl}/api/v1/notificaciones`, { ...payload, destinatarios }, { timeout: 3000 });
       this.logger.log(`Notificación enviada: [${payload.tipo}] a ${destinatarios.length} destinatarios`);
       return true;
     } catch (error) {

@@ -27,7 +27,15 @@ export class HabilidadesJugadorService {
     if (exists) throw new ConflictException('El jugador ya tiene asignada esta habilidad');
 
     const entity = this.repo.create({ jugadorId, habilidadId });
-    await this.repo.save(entity);
+    try {
+      await this.repo.save(entity);
+    } catch (e) {
+      // Carrera entre dos peticiones: la PK compuesta rechaza el duplicado
+      if ((e as { code?: string }).code === 'ER_DUP_ENTRY') {
+        throw new ConflictException('El jugador ya tiene asignada esta habilidad');
+      }
+      throw e;
+    }
     return { jugadorId, jugadorNombre: jugador.nombre, habilidadId, habilidadNombre: habilidad.nombre };
   }
 

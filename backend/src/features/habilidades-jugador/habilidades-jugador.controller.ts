@@ -1,5 +1,6 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, ParseIntPipe, Post } from '@nestjs/common';
 import { HabilidadesJugadorService } from './habilidades-jugador.service';
+import { AsignarHabilidadJugadorDto } from './dto/create-habilidad-jugador.dto';
 
 @Controller('api/v1')
 export class HabilidadesJugadorController {
@@ -33,8 +34,13 @@ export class HabilidadesJugadorController {
 
   // Alias compatibles con API REST de recursos
   @Post('habilidades-jugador')
-  assignBody(@Body() dto: { id_jugador: number; id_habilidad: number }) {
-    return this.service.assign(dto.id_jugador, dto.id_habilidad);
+  assignBody(@Body() dto: AsignarHabilidadJugadorDto) {
+    const jugadorId = dto.jugadorId ?? dto.id_jugador;
+    const habilidadId = dto.habilidadId ?? dto.id_habilidad;
+    if (!jugadorId || !habilidadId) {
+      throw new BadRequestException('jugadorId y habilidadId son obligatorios');
+    }
+    return this.service.assign(jugadorId, habilidadId);
   }
 
   @Get('habilidades-jugador/:jugadorId')

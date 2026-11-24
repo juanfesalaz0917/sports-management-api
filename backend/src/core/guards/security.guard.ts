@@ -55,6 +55,16 @@ export class SecurityGuard implements CanActivate {
       if (response.data && response.data.allowed === true) return true;
       throw new ForbiddenException('No tiene permiso para acceder a este recurso');
     } catch (error) {
+      if (!isDevBypass && error instanceof ForbiddenException) throw error;
+      if (axios.isAxiosError(error)) {
+        const status = error.response?.status;
+        this.logger.warn(
+          `ms_security respondió ${status ?? error.code} validando ${request.method} ${request.path}`,
+        );
+        if (!isDevBypass && status === 401) {
+          throw new UnauthorizedException('Token inválido o expirado');
+        }
+      }
       if (isDevBypass) {
         this.logger.warn(`Bypass de seguridad activado debido a falla en ms_security: ${(error as Error).message}`);
         return true;
