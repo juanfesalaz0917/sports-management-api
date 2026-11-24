@@ -1,6 +1,8 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
+import { PageQueryDto } from '../../core/pagination/page-query.dto';
+import { PageResponseDto, toPage } from '../../core/pagination/page-response.dto';
 import { liquidarApuestas, ESTADOS_LIQUIDABLES } from '../apuestas/liquidacion/liquidacion.util';
 import { CreatePartidoDto } from './dto/create-partido.dto';
 import { PartidoResponseDto } from './dto/partido-response.dto';
@@ -47,17 +49,22 @@ export class PartidosService {
     return reloaded;
   }
 
-  async findAll(torneoId?: number): Promise<PartidoResponseDto[]> {
+  async findAll(torneoId?: number, query: PageQueryDto = new PageQueryDto()): Promise<PageResponseDto<PartidoResponseDto>> {
     const where = torneoId ? { torneoId } : {};
-    const list = await this.partidoRepo.find({
+    const [list, total] = await this.partidoRepo.findAndCount({
       where,
-      relations: {
-        torneo: true,
-        fase: true,
-        escenario: true,
-        equipos: { equipo: true },
-        pelota: true,
-      },
+      relations: { torneo: true, fase: true, escenario: true, equipos: { equipo: true }, pelota: true },
+      order: { fechaHora: 'DESC', id: 'DESC' },
+      skip: query.page * query.size,
+      take: query.size,
+    });
+    return toPage(this.mapper.toResponseDtoList(list), total, query);
+  }
+
+  async findDisponiblesApuesta(): Promise<PartidoResponseDto[]> {
+    const list = await this.partidoRepo.find({
+      where: { estado: 'PROGRAMADO' },
+      relations: { torneo: true, fase: true, escenario: true, equipos: { equipo: true }, pelota: true },
     });
     return this.mapper.toResponseDtoList(list);
   }

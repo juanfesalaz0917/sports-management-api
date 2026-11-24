@@ -2,6 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { PageQueryDto } from '../../core/pagination/page-query.dto';
+import { PageResponseDto, toPage } from '../../core/pagination/page-response.dto';
 import { CreateApuestaDto } from './dto/create-apuesta.dto';
 import { ApuestaResponseDto } from './dto/apuesta-response.dto';
 import { Apuesta } from './entities/apuesta.entity';
@@ -37,12 +39,22 @@ export class ApuestasService {
     return this.mapper.toResponseDto({ ...saved, aficionado });
   }
 
-  async findAll(aficionadoId?: number, partidoId?: number): Promise<ApuestaResponseDto[]> {
+  async findAll(
+    aficionadoId?: number,
+    partidoId?: number,
+    query: PageQueryDto = new PageQueryDto(),
+  ): Promise<PageResponseDto<ApuestaResponseDto>> {
     const where: { aficionadoId?: number; partidoId?: number } = {};
     if (aficionadoId) where.aficionadoId = aficionadoId;
     if (partidoId) where.partidoId = partidoId;
-    const list = await this.repo.find({ where, relations: { aficionado: true, partido: { equipos: { equipo: true } } } });
-    return this.mapper.toResponseDtoList(list);
+    const [list, total] = await this.repo.findAndCount({
+      where,
+      relations: { aficionado: true, partido: { equipos: { equipo: true } } },
+      order: { fechaHora: 'DESC', id: 'DESC' },
+      skip: query.page * query.size,
+      take: query.size,
+    });
+    return toPage(this.mapper.toResponseDtoList(list), total, query);
   }
 
   async findByAficionado(aficionadoId: number): Promise<ApuestaResponseDto[]> {

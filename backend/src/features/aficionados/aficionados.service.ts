@@ -1,6 +1,8 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { PageQueryDto } from '../../core/pagination/page-query.dto';
+import { PageResponseDto, toPage } from '../../core/pagination/page-response.dto';
 import { CreateAficionadoDto } from './dto/create-aficionado.dto';
 import { AficionadoResponseDto } from './dto/aficionado-response.dto';
 import { UpdateAficionadoDto } from './dto/update-aficionado.dto';
@@ -24,9 +26,13 @@ export class AficionadosService {
     return this.mapper.toResponseDto(saved);
   }
 
-  async findAll(): Promise<AficionadoResponseDto[]> {
-    const list = await this.repo.find();
-    return this.mapper.toResponseDtoList(list);
+  async findAll(query: PageQueryDto = new PageQueryDto()): Promise<PageResponseDto<AficionadoResponseDto>> {
+    const [list, total] = await this.repo.findAndCount({
+      order: { id: 'DESC' },
+      skip: query.page * query.size,
+      take: query.size,
+    });
+    return toPage(this.mapper.toResponseDtoList(list), total, query);
   }
 
   async findOne(id: number): Promise<AficionadoResponseDto> {

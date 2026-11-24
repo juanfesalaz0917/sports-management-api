@@ -1,4 +1,6 @@
 import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
+import { PageQueryDto } from '../../core/pagination/page-query.dto';
+import { PageResponseDto } from '../../core/pagination/page-response.dto';
 import { CreateApuestaDto } from './dto/create-apuesta.dto';
 import { ApuestaResponseDto } from './dto/apuesta-response.dto';
 import { ApuestasService } from './apuestas.service';
@@ -16,10 +18,12 @@ export class ApuestasController {
   findAll(
     @Query('aficionadoId') aficionadoId?: string,
     @Query('partidoId') partidoId?: string,
-  ): Promise<ApuestaResponseDto[]> {
+    @Query() query?: PageQueryDto,
+  ): Promise<PageResponseDto<ApuestaResponseDto>> {
     return this.service.findAll(
       aficionadoId ? parseInt(aficionadoId, 10) : undefined,
       partidoId ? parseInt(partidoId, 10) : undefined,
+      query,
     );
   }
 

@@ -9,6 +9,8 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
+import { PageQueryDto } from '../../core/pagination/page-query.dto';
+import { PageResponseDto } from '../../core/pagination/page-response.dto';
 import { CreatePartidoDto } from './dto/create-partido.dto';
 import { PartidoResponseDto } from './dto/partido-response.dto';
 import { UpdatePartidoEstadoDto } from './dto/update-partido-estado.dto';
@@ -30,12 +32,15 @@ export class PartidosController {
 
   @Get('partidos/disponibles-apuesta')
   findDisponiblesApuesta(): Promise<PartidoResponseDto[]> {
-    return this.service.findAll();
+    return this.service.findDisponiblesApuesta();
   }
 
   @Get('partidos')
-  findAll(@Query('torneoId') torneoId?: string): Promise<PartidoResponseDto[]> {
-    return this.service.findAll(torneoId ? parseInt(torneoId, 10) : undefined);
+  findAll(
+    @Query('torneoId') torneoId?: string,
+    @Query() query?: PageQueryDto,
+  ): Promise<PageResponseDto<PartidoResponseDto>> {
+    return this.service.findAll(torneoId ? parseInt(torneoId, 10) : undefined, query);
   }
 
   @Get('partidos/:id')

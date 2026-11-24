@@ -1,13 +1,17 @@
 import { DataSource } from 'typeorm';
 import 'dotenv/config';
 
+declare const process: {
+  env: Record<string, string | undefined>;
+};
+
 const dataSource = new DataSource({
   type: 'mysql',
-  host: process.env.DB_HOST || 'localhost',
-  port: Number(process.env.DB_PORT) || 3306,
-  username: process.env.DB_USER || 'mostro',
-  password: process.env.DB_PASS || 'API',
-  database: process.env.DB_NAME || '210910624Dj',
+  host: process.env.DB_HOST,
+  port: Number(process.env.DB_PORT),
+  username: process.env.DB_USER,
+  password: process.env.DB_PASS || '',
+  database: process.env.DB_NAME || '',
   entities: ['src/**/*.entity.ts'],
   migrations: ['src/migrations/*.ts'],
   synchronize: false,
